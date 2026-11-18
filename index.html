@@ -1,0 +1,758 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Toubacko Package-Formular</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: petrol header with the step rail on the left (top strip on phones), one working card per step on a cool grey ground. */
+:root{
+  --ground:#F2F5F6; --card:#FFFFFF; --ink:#1E2A30; --muted:#5D6B72; --line:#DCE3E6;
+  --petrol:#0F3D4C; --petrol-ink:#EAF2F4; --blue:#2295D7; --blue-ink:#FFFFFF; --soft:#E8F3FA;
+  --ok:#1E8A5A; --warn:#B4610E; --err:#C0392B; --focus:#2295D7;
+  --body:"Inter", -apple-system, "Segoe UI", Roboto, sans-serif;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --ground:#0E1A1F; --card:#15252C; --ink:#E7EEF0; --muted:#9DB0B7; --line:#26404A;
+  --petrol:#0A2B36; --petrol-ink:#E7EEF0; --blue:#4AAEE8; --blue-ink:#06202B; --soft:#173748;
+  --ok:#47C08A; --warn:#E59A4C; --err:#EE7B6E; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --ground:#0E1A1F; --card:#15252C; --ink:#E7EEF0; --muted:#9DB0B7; --line:#26404A;
+  --petrol:#0A2B36; --petrol-ink:#E7EEF0; --blue:#4AAEE8; --blue-ink:#06202B; --soft:#173748;
+  --ok:#47C08A; --warn:#E59A4C; --err:#EE7B6E; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--ground);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+h1,h2,h3{margin:0;line-height:1.2;text-wrap:balance;font-weight:700;letter-spacing:-.01em}
+p{margin:0}
+a{color:var(--blue)}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px;border-radius:4px}
+.wrap{max-width:1120px;margin:0 auto;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px))}
+
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top, 0px);z-index:10;background:var(--petrol)}
+header.top{background:var(--petrol);color:var(--petrol-ink);position:sticky;top:env(safe-area-inset-top, 0px);z-index:9}
+.top .wrap{display:flex;align-items:center;gap:16px;padding-block:12px;flex-wrap:wrap}
+.brand{display:flex;flex-direction:column;line-height:1}
+.wordmark{font-weight:700;font-size:1.45rem;letter-spacing:-.02em;color:#fff}
+.wordmark span{color:#6FC0EE}
+.brand small{font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;opacity:.75;margin-top:4px}
+.top .spacer{flex:1}
+.lang{display:flex;border:1px solid rgba(255,255,255,.3);border-radius:999px;overflow:hidden}
+.lang button{background:none;border:0;color:var(--petrol-ink);font:600 .76rem var(--body);padding:6px 10px;cursor:pointer;letter-spacing:.05em;opacity:.8}
+.lang button[aria-pressed="true"]{background:var(--petrol-ink);color:var(--petrol);opacity:1}
+.saved{font-size:.78rem;opacity:.75}
+
+.proto{background:var(--soft);border-bottom:1px solid var(--line);font-size:.84rem}
+.proto .wrap{display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding-block:8px}
+.proto b{color:var(--blue)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--card)}
+.seg button{border:0;background:none;padding:4px 12px;font:500 .8rem var(--body);color:var(--ink);cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--blue);color:var(--blue-ink)}
+
+.layout{display:grid;grid-template-columns:250px 1fr;gap:28px;padding-block:28px 64px;align-items:start}
+nav.steps{position:sticky;top:84px;display:flex;flex-direction:column;gap:2px}
+nav.steps button{display:flex;gap:10px;align-items:center;text-align:left;background:none;border:0;padding:8px 10px;border-radius:8px;font:500 .9rem var(--body);color:var(--muted);cursor:pointer;width:100%}
+nav.steps button .n{flex:0 0 24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:.75rem;font-weight:700;border:1.5px solid var(--line);font-variant-numeric:tabular-nums}
+nav.steps button.done .n{background:var(--ok);border-color:var(--ok);color:#fff}
+nav.steps button[aria-current="step"]{background:var(--card);color:var(--ink);box-shadow:0 1px 0 var(--line)}
+nav.steps button[aria-current="step"] .n{border-color:var(--blue);color:var(--blue)}
+@media (max-width:860px){
+  .layout{grid-template-columns:1fr;gap:16px;padding-block:16px 48px}
+  nav.steps{position:static;flex-direction:row;overflow-x:auto;gap:4px;padding-bottom:4px}
+  nav.steps button{width:auto;flex:0 0 auto}
+  nav.steps button .t{display:none}
+  nav.steps button[aria-current="step"] .t{display:inline}
+}
+
+main{min-width:0}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:28px;display:flex;flex-direction:column;gap:22px}
+@media (max-width:560px){.panel{padding:18px}}
+.panel-head{display:flex;flex-direction:column;gap:6px}
+.eyebrow{font-size:.72rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--blue)}
+.panel h2{font-size:1.45rem}
+.lede{color:var(--muted);max-width:68ch}
+
+.note{display:flex;gap:10px;background:var(--soft);border-radius:var(--r);padding:12px 14px;font-size:.9rem}
+.note::before{content:"i";flex:0 0 20px;height:20px;border-radius:50%;background:var(--blue);color:var(--blue-ink);display:grid;place-items:center;font-weight:700;font-size:.75rem;font-style:italic;margin-top:1px}
+.note.warn::before{content:"!";background:var(--warn);font-style:normal}
+
+fieldset{border:0;margin:0;padding:0;display:flex;flex-direction:column;gap:14px;min-width:0}
+legend{font-weight:700;font-size:1rem;padding:0;margin-bottom:4px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 18px}
+.grid.three{grid-template-columns:repeat(3,minmax(0,1fr))}
+.full{grid-column:1/-1}
+@media (max-width:640px){.grid,.grid.three{grid-template-columns:1fr}}
+.field{display:flex;flex-direction:column;gap:5px;min-width:0}
+.field label,.lbl{font-size:.85rem;font-weight:600}
+.hint{font-size:.8rem;color:var(--muted)}
+input[type=text],input[type=email],input[type=url],input[type=tel],input[type=number],input[type=date],input[type=time],select,textarea{
+  font:inherit;font-size:.95rem;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:8px;padding:9px 11px;width:100%;min-width:0}
+textarea{min-height:96px;resize:vertical}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--focus);outline-offset:0;border-color:transparent}
+.prefilled input,.prefilled select{background:var(--ground)}
+.count{font-size:.75rem;color:var(--muted);text-align:right;font-variant-numeric:tabular-nums}
+.count.over{color:var(--err);font-weight:600}
+.req::after{content:" *";color:var(--err)}
+
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:6px 13px;font:500 .85rem var(--body);cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--petrol);border-color:var(--petrol);color:#fff}
+
+.check{display:flex;gap:10px;align-items:flex-start;font-size:.9rem}
+.check input{margin-top:3px;width:18px;height:18px;accent-color:var(--blue);flex:0 0 18px}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font:600 .92rem var(--body);border-radius:999px;padding:10px 20px;border:1.5px solid transparent;cursor:pointer;text-decoration:none}
+.btn-primary{background:var(--blue);color:var(--blue-ink)}
+.btn-ghost{background:none;border-color:var(--line);color:var(--ink)}
+.btn-small{padding:6px 14px;font-size:.84rem}
+.btn-link{background:none;border:0;color:var(--err);font:500 .84rem var(--body);cursor:pointer;padding:4px}
+.actions{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:18px}
+
+.item{border:1px solid var(--line);border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:14px;background:var(--card)}
+.item-head{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.item-head h3{font-size:1rem}
+.badge{font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:3px 9px;border-radius:999px;background:var(--soft);color:var(--blue)}
+
+.drop{border:1.5px dashed var(--line);border-radius:12px;padding:18px;text-align:center;color:var(--muted);font-size:.9rem;cursor:pointer;background:var(--ground)}
+.drop.over{border-color:var(--blue);color:var(--blue)}
+.drop input{display:none}
+.pics{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
+.pic{border:1px solid var(--line);border-radius:10px;overflow:hidden;display:flex;flex-direction:column;background:var(--card)}
+.pic img{width:100%;aspect-ratio:3/2;object-fit:cover;display:block;background:var(--ground)}
+.pic .body{padding:10px;display:flex;flex-direction:column;gap:8px}
+.pic .meta{display:flex;justify-content:space-between;align-items:center;font-size:.75rem;color:var(--muted)}
+.pic .meta .low{color:var(--warn);font-weight:600}
+.pic.main{outline:3px solid var(--blue)}
+.star{background:none;border:1px solid var(--line);border-radius:999px;font:500 .75rem var(--body);padding:3px 9px;cursor:pointer;color:var(--ink)}
+.star[aria-pressed="true"]{background:var(--blue);border-color:var(--blue);color:var(--blue-ink)}
+
+.days{display:flex;flex-direction:column;gap:14px}
+.day h3{font-size:.95rem;margin-bottom:8px}
+.row{display:grid;grid-template-columns:140px minmax(0,1fr) 140px 100px 34px;gap:8px;align-items:start}
+@media (max-width:640px){.row{grid-template-columns:1fr 1fr}.row .wide{grid-column:1/-1}}
+.row + .row{margin-top:8px}
+
+.perkgroup{display:flex;flex-direction:column;gap:6px}
+.perkgroup h3{font-size:.9rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.perk{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px 14px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}
+.perk .extra{grid-column:1/-1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+@media (max-width:640px){.perk{grid-template-columns:1fr}.perk .extra{grid-template-columns:1fr}}
+.levels{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;flex-wrap:wrap}
+.levels button{border:0;background:var(--card);padding:5px 11px;font:500 .8rem var(--body);color:var(--muted);cursor:pointer}
+.levels button[aria-pressed="true"].l-basic{background:var(--muted);color:#fff}
+.levels button[aria-pressed="true"].l-premium{background:var(--blue);color:var(--blue-ink)}
+.levels button[aria-pressed="true"].l-smart{background:var(--ok);color:#fff}
+.levels button[aria-pressed="true"].l-none{background:var(--line);color:var(--ink)}
+
+.sum{border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.sum table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+.sum td,.sum th{padding:10px 14px;border-bottom:1px solid var(--line);text-align:left}
+.sum td:last-child,.sum th:last-child{text-align:right;white-space:nowrap}
+.sum tr.total td{font-weight:700;background:var(--soft)}
+.table-x{overflow-x:auto}
+
+.hol{display:grid;grid-template-columns:minmax(0,1fr) auto 90px;gap:8px 12px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}
+.hol .d{font-size:.8rem;color:var(--muted)}
+@media (max-width:640px){.hol{grid-template-columns:1fr 90px}.hol .levels{grid-column:1/-1}}
+.tiers{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+@media (max-width:640px){.tiers{grid-template-columns:1fr}}
+.tier{display:flex;gap:6px;align-items:center;flex-wrap:wrap;font-size:.9rem;border:1px solid var(--line);border-radius:10px;padding:10px}
+.tier input{width:70px}
+
+.review{display:flex;flex-direction:column;gap:12px}
+.review .blk{border:1px solid var(--line);border-radius:10px;padding:14px}
+.review .blk h3{font-size:.9rem;margin-bottom:6px;display:flex;justify-content:space-between;gap:10px}
+.review dl{display:grid;grid-template-columns:180px minmax(0,1fr);gap:4px 12px;margin:0;font-size:.88rem}
+.review dt{color:var(--muted)}
+.review dd{margin:0;overflow-wrap:anywhere}
+@media (max-width:560px){.review dl{grid-template-columns:1fr}}
+.missing{color:var(--err);font-weight:600}
+pre.json{background:var(--ground);border:1px solid var(--line);border-radius:10px;padding:12px;font-size:.75rem;max-height:320px;overflow:auto;white-space:pre}
+.done-msg{text-align:center;padding:30px 10px;display:flex;flex-direction:column;gap:10px;align-items:center}
+.done-msg .tick{width:56px;height:56px;border-radius:50%;background:var(--ok);color:#fff;display:grid;place-items:center;font-size:1.6rem;font-weight:700}
+@media (prefers-reduced-motion:no-preference){.panel{animation:in .18s ease-out}@keyframes in{from{transform:translateY(4px)}to{transform:none}}}
+</style>
+
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <div class="brand"><span class="wordmark">Tou<span>backo</span></span><small>Tourism Back Office</small></div>
+    <div class="spacer"></div>
+    <span class="saved" id="saved"></span>
+    <div class="lang" role="group" aria-label="Language">
+      <button type="button" data-lang="en">EN</button>
+      <button type="button" data-lang="pt">PT</button>
+      <button type="button" data-lang="de">DE</button>
+      <button type="button" data-lang="fr">FR</button>
+    </div>
+  </div>
+</header>
+<div class="proto"><div class="wrap">
+  <span><b>Prototyp</b> – speichert und sendet nichts. Vorausgefüllt mit einem erfundenen Beispielpartner.</span>
+  <span class="seg" role="group" aria-label="Partnertyp"><button type="button" id="pt-hotel">Hotel</button><button type="button" id="pt-hero">Local Hero</button></span>
+</div></div>
+
+<div class="wrap layout">
+  <nav class="steps" id="steps" aria-label="Steps"></nav>
+  <main id="main"></main>
+</div>
+
+<script>
+/* ---------- configuration ---------- */
+const API_URL = 'https://script.google.com/macros/s/AKfycbxibq8TGUqMBoUgo7BVc1qWhNyPttz9tou9laEKSzkHZla-5vCTpQw5zm9yEgDmCO9R/exec';   /* Web-App-URL aus Google Apps Script (endet auf /exec) */
+const LIVE = /(^|\.)github\.io$|(^|\.)toubacko\.com$/.test(location.hostname);
+const CODE = LIVE ? (new URLSearchParams(location.search).get('p') || '').trim() : '';
+let BOOT = LIVE ? (CODE ? 'loading' : 'badlink') : 'ready';
+let hadDraft = false;
+/* ---------- texts: [en, pt, de, fr] ---------- */
+const L = ['en','pt','de','fr'];
+const T = {
+
+
+
+ c_title_hint:["This can be a person or a department.","Pode ser uma pessoa ou um departamento.","Das kann eine Person oder eine Abteilung sein.","Il peut s'agir d'une personne ou d'un service."],
+ c_copy:["Copy to","Cópia para","Kopie an","Copie à"], c_role:["Department","Departamento","Abteilung","Service"], c_sales:["Sales","Vendas","Verkauf","Ventes"],
+ c_copy_hint:["One email address only.","Apenas um endereço de e-mail.","Nur eine E-Mail-Adresse.","Une seule adresse e-mail."],
+ i_where:["Your photos sell your package. They appear as a gallery on your package page, and travel agencies, tour operators and influencers who resell your package show the same photos. With a title and a short text you tell the guest what they see: “Breakfast on the veranda” says more than the photo alone.","Suas fotos vendem o seu pacote. Elas aparecem como galeria na página do pacote, e agências, operadoras e influenciadores que revendem o seu pacote mostram as mesmas fotos. Com título e um texto curto você diz ao hóspede o que ele vê: “Café da manhã na varanda” diz mais do que a foto sozinha.","Ihre Bilder verkaufen Ihr Package. Sie erscheinen als Galerie auf Ihrer Package-Seite, und Reisebüros, Reiseveranstalter und Influencer, die Ihr Package weiterverkaufen, zeigen dieselben Bilder. Mit Titel und kurzem Text sagen Sie dem Gast, was er sieht: „Frühstück auf der Veranda“ sagt mehr als das Bild allein.","Vos photos vendent votre forfait. Elles apparaissent en galerie sur la page du forfait, et les agences, tour-opérateurs et influenceurs qui le revendent montrent les mêmes photos. Avec un titre et un court texte, vous dites au voyageur ce qu'il voit : « Petit-déjeuner sur la véranda » en dit plus que la photo seule."],
+ acc_title:["Accommodation / overnight stay","Hospedagem / pernoite","Unterkunft / Übernachtung","Hébergement / nuitée"],
+ acc_name:["Name of the hotel","Nome do hotel","Name des Hotels","Nom de l'hôtel"],
+ acc_desc:["Description of your accommodation","Descrição da hospedagem","Beschreibung der Unterkunft","Description de l'hébergement"],
+ acc_photos:["Photos of your hotel (up to 10)","Fotos do seu hotel (até 10)","Bilder Ihres Hotels (bis zu 10)","Photos de votre hôtel (jusqu'à 10)"],
+ p_short_hint:["Make guests look forward to the trip: what will they experience that they cannot book anywhere else? Show that this is not an ordinary room but a curated experience with your insider contacts.","Desperte a vontade de viajar: o que o hóspede vai viver que não encontra em nenhum outro lugar? Mostre que não é um quarto comum, mas uma experiência com curadoria e seus contatos locais.","Machen Sie Lust auf die Reise: Was erlebt der Gast, das er sonst nirgends buchen kann? Zeigen Sie, dass es kein gewöhnliches Zimmer ist, sondern ein kuratiertes Erlebnis mit Ihren Insider-Kontakten.","Donnez envie de partir : que vivra le voyageur qu'il ne peut réserver nulle part ailleurs ? Montrez qu'il ne s'agit pas d'une simple chambre mais d'une expérience organisée avec vos contacts sur place."],
+ p_other:["Suggest another interest","Sugerir outro interesse","Anderes Interesse vorschlagen","Proposer un autre centre d'intérêt"],
+ st_acc:["Accommodation","Hospedagem","Unterkunft","Hébergement"],
+ acc_lede:["Your hotel is the heart of the package. Check the name, describe the stay and add your photos.","Seu hotel é o coração do pacote. Confira o nome, descreva a estadia e adicione suas fotos.","Ihr Hotel ist das Herz des Packages. Prüfen Sie den Namen, beschreiben Sie den Aufenthalt und laden Sie Ihre Bilder hoch.","Votre hôtel est le cœur du forfait. Vérifiez le nom, décrivez le séjour et ajoutez vos photos."],
+ s_times:["Time of day","Período do dia","Tageszeit","Moment de la journée"],
+ tod_morning:["Morning","Manhã","morgens","Le matin"],tod_midday:["Midday","Meio-dia","mittags","À midi"],tod_afternoon:["Afternoon","Tarde","nachmittags","L'après-midi"],tod_evening:["Evening","Noite","abends","Le soir"],tod_fullday:["Full day","Dia inteiro","ganztags","Toute la journée"],
+ s_cost:["Internal cost per person","Custo interno por pessoa","Interne Kosten pro Person","Coût interne par personne"],
+ s_cost_hint:["Not visible to the guest.","Não aparece para o hóspede.","Für den Kunden nicht sichtbar.","Non visible pour le voyageur."],
+ pr_st:["In the package","No pacote","Im Package","Dans le forfait"],
+ pr_included:["Included","Incluído","Inbegriffen","Inclus"],pr_optional:["Optional","Opcional","Optional","En option"],pr_suggested:["Suggestion","Sugestão","Vorschlag","Suggestion"],
+ a_for:["For:","Para:","Für:","Pour :"],
+ a_only:["These rules apply to this package only.","Estas regras valem só para este pacote.","Diese Regeln gelten nur für dieses Package.","Ces règles s'appliquent à ce forfait uniquement."],
+ welcome_h:["Before you start","Antes de começar","Bevor Sie beginnen","Avant de commencer"],
+ live_loading:["Loading your details …","Carregando seus dados …","Ihre Stammdaten werden geladen …","Chargement de vos données …"],
+ live_badlink:["This link is not valid. Please use the personal link we sent you, or write to partners@toubacko.com.","Este link não é válido. Use o link pessoal que enviamos ou escreva para partners@toubacko.com.","Dieser Link ist ungültig. Bitte verwenden Sie den persönlichen Link, den wir Ihnen geschickt haben, oder schreiben Sie an partners@toubacko.com.","Ce lien n'est pas valide. Utilisez le lien personnel que nous vous avons envoyé ou écrivez à partners@toubacko.com."],
+ live_error:["Something went wrong while sending. Please check your connection and try again. Your entries are kept.","Algo deu errado no envio. Verifique sua conexão e tente de novo. Seus dados continuam salvos.","Beim Senden ist etwas schiefgegangen. Bitte prüfen Sie Ihre Verbindung und versuchen Sie es erneut. Ihre Angaben bleiben erhalten.","Un problème est survenu lors de l'envoi. Vérifiez votre connexion et réessayez. Vos saisies sont conservées."],
+ live_sending:["Uploading photo {n} of {m} …","Enviando foto {n} de {m} …","Bild {n} von {m} wird hochgeladen …","Envoi de la photo {n} sur {m} …"],
+ live_finishing:["Sending …","Enviando …","Wird gesendet …","Envoi …"],
+ live_photos_draft:["Photos are only kept while this page is open. Add them in one go, shortly before sending.","As fotos só ficam guardadas enquanto esta página estiver aberta. Adicione-as de uma vez, pouco antes de enviar.","Bilder bleiben nur gespeichert, solange diese Seite offen ist. Laden Sie sie am besten kurz vor dem Absenden hoch.","Les photos ne sont conservées que tant que cette page est ouverte. Ajoutez-les peu avant l'envoi."],
+ st_master:["Your details","Seus dados","Ihre Stammdaten","Vos coordonnées"],
+ st_about:["About you","Sobre você","Über Sie","À propos de vous"],
+ st_images:["Your photos","Suas fotos","Ihre Bilder","Vos photos"],
+ st_package:["Your Experience Package","Seu Experience Package","Ihr Experience Package","Votre Experience Package"],
+ st_services:["Experiences","Experiências","Erlebnisse","Expériences"],
+ st_program:["Day by day","Dia a dia","Tag für Tag","Jour par jour"],
+ st_perks:["Perks","Mimos (perks)","Perks","Avantages"],
+ st_price:["Price","Preço","Preis","Prix"],
+ st_avail:["Dates & rules","Datas e regras","Daten & Regeln","Dates et règles"],
+ st_review:["Check & send","Revisar e enviar","Prüfen & senden","Vérifier et envoyer"],
+ step:["Step","Passo","Schritt","Étape"], of:["of","de","von","sur"],
+ next:["Next","Avançar","Weiter","Suivant"], back:["Back","Voltar","Zurück","Retour"],
+ saved:["Draft saved on this device","Rascunho salvo neste aparelho","Entwurf auf diesem Gerät gespeichert","Brouillon enregistré sur cet appareil"],
+ any_lang:["Write in any language you like. We translate everything into English, German, French and Portuguese.","Escreva no idioma que preferir. Nós traduzimos tudo para inglês, alemão, francês e português.","Schreiben Sie in jeder beliebigen Sprache. Wir übersetzen alles ins Englische, Deutsche, Französische und Portugiesische.","Écrivez dans la langue de votre choix. Nous traduisons tout en anglais, allemand, français et portugais."],
+ adapt:["We may adjust your texts slightly: the same package is shown to direct guests, tour operators, travel agencies and influencers, and each needs a slightly different tone. The content stays yours.","Podemos ajustar levemente seus textos: o mesmo pacote aparece para hóspedes diretos, operadoras, agências e influenciadores, e cada um pede um tom um pouco diferente. O conteúdo continua sendo seu.","Wir passen Ihre Texte eventuell leicht an: Dasselbe Package erscheint bei Direktbuchern, Reiseveranstaltern, Reisebüros und Influencern, und jeder braucht einen etwas anderen Ton. Der Inhalt bleibt Ihrer.","Nous pouvons légèrement adapter vos textes : le même forfait est présenté aux clients directs, aux tour-opérateurs, aux agences et aux influenceurs, et chacun demande un ton un peu différent. Le contenu reste le vôtre."],
+ m_lede:["We have prepared your details. Please check them and correct anything that is wrong.","Já preparamos seus dados. Confira e corrija o que estiver errado.","Wir haben Ihre Stammdaten vorbereitet. Bitte prüfen Sie sie und korrigieren Sie, was nicht stimmt.","Nous avons préparé vos coordonnées. Vérifiez-les et corrigez ce qui ne va pas."],
+ f_fantasy:["Name you trade under","Nome fantasia","Name, unter dem Sie auftreten","Nom commercial"],
+ f_legal:["Official company name","Razão social","Offizieller Firmenname","Raison sociale"],
+ f_email:["Email for requests and bookings","E-mail para pedidos e reservas","E-Mail für Anfragen und Buchungen","E-mail pour demandes et réservations"],
+ f_phone:["Phone","Telefone","Telefon","Téléphone"], f_wa:["WhatsApp","WhatsApp","WhatsApp","WhatsApp"],
+ f_web:["Website","Site","Website","Site web"], f_insta:["Instagram","Instagram","Instagram","Instagram"],
+ f_addr:["Address","Endereço","Adresse","Adresse"], f_city:["City","Cidade","Ort","Ville"], f_country:["Country","País","Land","Pays"],
+ f_langs:["Languages spoken by you or your team","Idiomas falados por você ou sua equipe","Sprachen, die Sie oder Ihr Team sprechen","Langues parlées par vous ou votre équipe"],
+ f_logo:["Logo (landscape works best)","Logo (de preferência horizontal)","Logo (am besten im Querformat)","Logo (de préférence horizontal)"],
+ m_confirm:["My details are correct.","Meus dados estão corretos.","Meine Stammdaten stimmen.","Mes coordonnées sont correctes."],
+ h_rooms:["Number of rooms","Número de quartos","Anzahl Zimmer","Nombre de chambres"],
+ h_rooms_hint:["Toubacko works with hotels and pousadas of at least 6 rooms.","A Toubacko trabalha com hotéis e pousadas de no mínimo 6 quartos.","Toubacko arbeitet mit Hotels und Pousadas ab 6 Zimmern.","Toubacko travaille avec des hôtels d'au moins 6 chambres."],
+ h_desc:["Describe your hotel: what makes it special?","Descreva seu hotel: o que o torna especial?","Beschreiben Sie Ihr Hotel: Was macht es besonders?","Décrivez votre hôtel : qu'est-ce qui le rend unique ?"],
+ h_strengths:["Your strengths (spa, restaurant, rooftop, beach …)","Seus pontos fortes (spa, restaurante, rooftop, praia …)","Ihre Stärken (Spa, Restaurant, Rooftop, Strand …)","Vos points forts (spa, restaurant, rooftop, plage …)"],
+ c_title:["Who will the guest communicate with?","Com quem o hóspede vai se comunicar?","Mit wem wird der Gast kommunizieren?","Avec qui le voyageur communiquera-t-il ?"],
+ c_res:["Reservations","Reservas","Reservierung","Réservations"], c_gm:["General manager","Gerência","Geschäftsleitung","Direction"],
+ c_name:["Name","Nome","Name","Nom"],
+ lh_lede:["Guests travel to meet you. Tell them who you are.","Os hóspedes viajam para conhecer você. Conte quem você é.","Gäste reisen, um Sie kennenzulernen. Erzählen Sie, wer Sie sind.","Les voyageurs viennent pour vous rencontrer. Dites-leur qui vous êtes."],
+ lh_first:["First name","Nome","Vorname","Prénom"], lh_last:["Last name","Sobrenome","Nachname","Nom"],
+ lh_prof:["What you do (chef, architect, guide …)","O que você faz (chef, arquiteta, guia …)","Was Sie machen (Koch, Architektin, Guide …)","Ce que vous faites (chef, architecte, guide …)"],
+ lh_intro:["Short intro (one or two sentences)","Apresentação curta (uma ou duas frases)","Kurze Vorstellung (ein bis zwei Sätze)","Courte présentation (une ou deux phrases)"],
+ lh_story:["Your story","Sua história","Ihre Geschichte","Votre histoire"],
+ lh_story_hint:["What do you show your guests that nobody else can?","O que você mostra aos seus hóspedes que ninguém mais mostra?","Was zeigen Sie Ihren Gästen, was sonst niemand kann?","Que montrez-vous à vos invités que personne d'autre ne peut ?"],
+ lh_portrait:["Portrait photo","Foto de retrato","Porträtfoto","Photo portrait"],
+ lh_hotel:["Partner hotel where your guests stay","Hotel parceiro onde seus hóspedes ficam","Partnerhotel, in dem Ihre Gäste wohnen","Hôtel partenaire où logent vos invités"],
+ lh_hotel_hint:["A real hotel or pousada with at least 6 rooms.","Um hotel ou pousada de verdade, com no mínimo 6 quartos.","Ein echtes Hotel oder eine Pousada mit mindestens 6 Zimmern.","Un vrai hôtel d'au moins 6 chambres."],
+ i_lede:["Show your place and your atmosphere. Up to 10 photos, each with a title and a short text.","Mostre seu lugar e o clima. Até 10 fotos, cada uma com título e um texto curto.","Zeigen Sie Ihr Haus und seine Stimmung. Bis zu 10 Bilder, jedes mit Titel und kurzem Text.","Montrez votre lieu et son ambiance. Jusqu'à 10 photos, chacune avec un titre et un court texte."],
+ i_drop:["Drop photos here or click to choose (JPG or WebP, landscape, at least 1080 px wide, max. 10 MB)","Solte as fotos aqui ou clique para escolher (JPG ou WebP, horizontal, mín. 1080 px de largura, máx. 10 MB)","Bilder hierher ziehen oder klicken (JPG oder WebP, Querformat, mind. 1080 px breit, max. 10 MB)","Déposez les photos ici ou cliquez (JPG ou WebP, paysage, au moins 1080 px de large, max. 10 Mo)"],
+ i_title:["Photo title","Título da foto","Bildtitel","Titre de la photo"],
+ i_text:["What do we see?","O que vemos?","Was sieht man?","Que voit-on ?"],
+ i_low:["Small – may look blurry","Pequena – pode ficar borrada","Klein – kann unscharf wirken","Petite – risque d'être floue"],
+ i_main:["Main photo","Foto principal","Hauptbild","Photo principale"],
+ i_remove:["Remove","Remover","Entfernen","Supprimer"],
+ i_max:["You can add up to 10 photos here.","Você pode adicionar até 10 fotos aqui.","Hier sind bis zu 10 Bilder möglich.","Vous pouvez ajouter jusqu'à 10 photos ici."],
+ i_big:["This file is larger than 10 MB.","Este arquivo tem mais de 10 MB.","Diese Datei ist grösser als 10 MB.","Ce fichier dépasse 10 Mo."],
+ copyright:["Only upload photos you own or may use. By uploading, you confirm that you may use them and allow Toubacko and its sales partners to publish them with your package. Please name the photographer in the photo text if credit is required.","Envie apenas fotos que sejam suas ou que você tenha direito de usar. Ao enviar, você confirma que pode usá-las e autoriza a Toubacko e seus parceiros de venda a publicá-las com o seu pacote. Se for preciso dar crédito, cite o fotógrafo no texto da foto.","Laden Sie nur Bilder hoch, die Ihnen gehören oder die Sie verwenden dürfen. Mit dem Hochladen bestätigen Sie, dass Sie sie verwenden dürfen, und erlauben Toubacko und seinen Vertriebspartnern, sie mit Ihrem Package zu veröffentlichen. Falls ein Bildnachweis nötig ist, nennen Sie den Fotografen im Bildtext.","N'envoyez que des photos qui vous appartiennent ou que vous pouvez utiliser. En les envoyant, vous confirmez pouvoir les utiliser et autorisez Toubacko et ses partenaires de vente à les publier avec votre forfait. Si un crédit est requis, indiquez le photographe dans le texte de la photo."],
+ copyright_ok:["I may use these photos.","Posso usar estas fotos.","Ich darf diese Bilder benutzen.","J'ai le droit d'utiliser ces photos."],
+ p_lede:["The package is the journey you sell: your rooms plus what only you can offer.","O pacote é a viagem que você vende: seus quartos mais o que só você pode oferecer.","Das Package ist die Reise, die Sie verkaufen: Ihre Zimmer plus das, was nur Sie bieten.","Le forfait est le voyage que vous vendez : vos chambres et ce que vous seul pouvez offrir."],
+ p_title:["Package title","Título do pacote","Titel des Packages","Titre du forfait"],
+ p_title_hint:["e.g. “Experience Paraty as if you lived there”, “Paraty like a local” or “Paraty with celebrated chef …”.","ex.: “Viva Paraty como se morasse lá”, “Paraty como um local” ou “Paraty com o premiado chef …”.","z. B. „Erleben Sie Paraty, als würden Sie dort wohnen“, „Paraty wie ein Local“ oder „Paraty mit dem gefeierten Chef …“.","p. ex. « Vivez Paraty comme si vous y habitiez », « Paraty comme un local » ou « Paraty avec le chef réputé … »."],
+ p_short:["Teaser for the package tile","Chamada curta para o card","Kurztext für die Kachel","Accroche pour la vignette"],
+ p_long:["Full description","Descrição completa","Ausführliche Beschreibung","Description complète"],
+ p_long_hint:["What will the guest feel, taste and remember?","O que o hóspede vai sentir, provar e lembrar?","Was wird der Gast erleben, schmecken, in Erinnerung behalten?","Que va ressentir, goûter et retenir le voyageur ?"],
+ p_nights:["Total length of the package (nights)","Duração total do pacote (noites)","Gesamtdauer des Packages (Nächte)","Durée totale du forfait (nuits)"], p_style:["Style","Estilo","Stil","Style"], p_group:["Ideal group size","Tamanho ideal do grupo","Ideale Gruppengrösse","Taille de groupe idéale"],
+ p_interests:["Which interests does it match?","A quais interesses ele corresponde?","Zu welchen Interessen passt es?","À quels centres d'intérêt correspond-il ?"],
+ p_interests_hint:["These decide where your package appears on the Toubacko globe.","Isso define onde seu pacote aparece no globo da Toubacko.","Danach erscheint Ihr Package auf dem Toubacko-Globus.","Cela détermine où votre forfait apparaît sur le globe Toubacko."],
+ p_main:["Main photo of the package","Foto principal do pacote","Hauptbild des Packages","Photo principale du forfait"],
+ p_main_hint:["One photo that appears everywhere: as the tile on the Toubacko globe, in the offer overview and with resellers. If you leave it empty, we use the first photo of your hotel.","Uma foto que aparece em todo lugar: no card do globo Toubacko, na visão geral das ofertas e nos revendedores. Se ficar vazio, usamos a primeira foto do seu hotel.","Ein Bild, das überall erscheint: als Kachel auf dem Toubacko-Globus, in der Angebotsübersicht und bei Wiederverkäufern. Bleibt das Feld leer, nehmen wir das erste Bild Ihres Hotels.","Une photo qui apparaît partout : vignette sur le globe Toubacko, aperçu des offres et chez les revendeurs. Si vous la laissez vide, nous prenons la première photo de votre hôtel."],
+ s_lede:["Describe everything your guest will experience. For each experience you decide whether it is a service you offer, a suggestion or an option. Approximate prices are fine; always calculate for 2 travellers.","Descreva tudo o que o hóspede vai viver. Para cada experiência você decide se é um serviço que você oferece, uma sugestão ou um opcional. Preços aproximados estão ok; calcule sempre para 2 viajantes.","Beschreiben Sie hier alles, was Ihr Gast erleben wird. Bei jedem Erlebnis entscheiden Sie, ob es eine Leistung ist, die Sie anbieten, ein Vorschlag oder eine Option. Ungefähre Preise genügen; rechnen Sie immer für 2 Reisende.","Décrivez tout ce que vivra votre voyageur. Pour chaque expérience, vous décidez s'il s'agit d'une prestation que vous offrez, d'une suggestion ou d'une option. Des prix approximatifs suffisent ; calculez toujours pour 2 voyageurs."],
+ s_add:["Add an experience","Adicionar experiência","Erlebnis hinzufügen","Ajouter une expérience"],
+ s_type:["Type","Tipo","Art","Type"], s_name:["Name of the experience","Nome da experiência","Name des Erlebnisses","Nom de l'expérience"],
+ s_desc:["Description for the guest","Descrição para o hóspede","Beschreibung für den Gast","Description pour le voyageur"],
+ s_incl:["What exactly is included?","O que exatamente está incluído?","Was genau ist inbegriffen?","Qu'est-ce qui est inclus exactement ?"],
+ s_incl_hint:["Meals, drinks, entrance fees, equipment …","Refeições, bebidas, ingressos, equipamento …","Mahlzeiten, Getränke, Eintritte, Ausrüstung …","Repas, boissons, entrées, équipement …"],
+ s_days:["Available on","Disponível em","Verfügbar an","Disponible le"],
+ s_status:["Type of offer","Tipo de oferta","Art des Angebots","Type d'offre"],
+ s_included:["Included in the price – a service you offer","Incluído no preço – um serviço que você oferece","Im Preis inbegriffen – eine Leistung, die Sie anbieten","Inclus dans le prix – une prestation que vous offrez"],
+ s_suggested:["Suggestion – completely optional, the guest does it on their own","Sugestão – totalmente facultativa, o hóspede faz por conta","Vorschlag – völlig fakultativ, der Gast macht es selbst","Suggestion – entièrement facultative, le voyageur le fait seul"],
+ s_optional:["Optional – can be booked at the hotel reception","Opcional – pode ser reservado na recepção do hotel","Optional – an der Hotelrezeption buchbar","Option – réservable à la réception de l'hôtel"],
+ s_price_pp:["Price per person","Preço por pessoa","Preis pro Person","Prix par personne"],
+ s_price_room:["Room price for the whole stay (double room)","Preço do quarto para toda a estadia (duplo)","Zimmerpreis für den ganzen Aufenthalt (Doppelzimmer)","Prix de la chambre pour tout le séjour (double)"],
+ s_room_cat:["Room category","Categoria do quarto","Zimmerkategorie","Catégorie de chambre"],
+ s_board:["Meals included","Refeições incluídas","Verpflegung","Repas inclus"],
+ s_share:["This experience may also appear in packages of other Toubacko partners (e.g. dinner for guests of a neighbouring hotel without a restaurant). I always receive my price and am informed of every booking.","Esta experiência pode aparecer também em pacotes de outros parceiros Toubacko (ex.: jantar para hóspedes de um hotel vizinho sem restaurante). Sempre recebo meu preço e sou informado de cada reserva.","Dieses Erlebnis darf auch in Packages anderer Toubacko-Partner erscheinen (z. B. Abendessen für Gäste eines Nachbarhotels ohne Restaurant). Ich erhalte immer meinen Preis und werde über jede Buchung informiert.","Cette expérience peut aussi figurer dans les forfaits d'autres partenaires Toubacko (p. ex. un dîner pour les clients d'un hôtel voisin sans restaurant). Je reçois toujours mon prix et suis informé de chaque réservation."],
+ s_photos:["Photos of this experience","Fotos desta experiência","Bilder dieses Erlebnisses","Photos de cette expérience"],
+ s_remove:["Remove experience","Remover experiência","Erlebnis entfernen","Supprimer l'expérience"],
+ s_need_acc:["Add your accommodation as the first service.","Adicione a hospedagem como primeiro serviço.","Erfassen Sie Ihre Unterkunft als erste Leistung.","Ajoutez l'hébergement comme première prestation."],
+ pr_lede:["Place your experiences on the days. Empty slots are fine: free time is part of the journey.","Distribua as experiências pelos dias. Horários vazios estão ok: tempo livre faz parte da viagem.","Verteilen Sie Ihre Erlebnisse auf die Tage. Leere Zeiten sind in Ordnung: freie Zeit gehört zur Reise.","Placez vos expériences sur les jours. Les créneaux vides sont normaux : le temps libre fait partie du voyage."],
+ pr_day:["Day","Dia","Tag","Jour"], pr_add:["Add to this day","Adicionar a este dia","Zu diesem Tag hinzufügen","Ajouter à ce jour"],
+ pr_slot:["Time of day","Período","Tageszeit","Moment"], pr_what:["Service","Serviço","Leistung","Prestation"], pr_time:["Time","Hora","Uhrzeit","Heure"],
+ pr_note:["Tip from you (optional)","Dica sua (opcional)","Ihr Tipp (optional)","Votre conseil (facultatif)"],
+ pr_free:["– free text –","– texto livre –","– freier Text –","– texte libre –"],
+ pr_free_ph:["e.g. Sunset at Praia do Jabaquara","ex.: Pôr do sol na Praia do Jabaquara","z. B. Sonnenuntergang an der Praia do Jabaquara","p. ex. Coucher de soleil à la Praia do Jabaquara"],
+ pr_nosvc:["Add experiences in step 5 first.","Adicione experiências no passo 5 primeiro.","Erfassen Sie zuerst Erlebnisse in Schritt 5.","Ajoutez d'abord des expériences à l'étape 5."],
+ pk_lede:["Perks are what your hotel offers for all its packages. You decide which category each perk belongs to at your place.","Mimos são o que seu hotel oferece em todos os pacotes. Você decide a categoria de cada mimo no seu hotel.","Perks sind Leistungen, die Ihr Hotel für alle Packages zusagt. Sie bestimmen selbst, in welche Kategorie ein Perk bei Ihnen gehört.","Les avantages sont offerts par votre hôtel pour tous ses forfaits. Vous décidez de la catégorie de chacun."],
+ pk_basic:["Basic","Básico","Basic","Basique"], pk_premium:["Premium","Premium","Premium","Premium"], pk_smart:["Smart","Smart","Smart","Smart"], pk_none:["No","Não","Nein","Non"],
+ pk_explain:["Basic: expected, included. Premium: a gift to the guest. Smart: uses quiet hours of your spa, kitchen or boat and earns you revenue.","Básico: esperado, incluído. Premium: um presente ao hóspede. Smart: usa horários vazios do seu spa, cozinha ou barco e gera receita.","Basic: wird erwartet, inklusive. Premium: ein Geschenk an den Gast. Smart: nutzt leere Zeiten von Spa, Küche oder Boot und bringt Ihnen Umsatz.","Basique : attendu, inclus. Premium : un cadeau au voyageur. Smart : utilise les heures creuses de votre spa, cuisine ou bateau et vous rapporte."],
+ pk_smart_q:["Which of your facilities are empty at certain times? We turn those hours into experiences.","Quais das suas estruturas ficam vazias em certos horários? Transformamos esses horários em experiências.","Welche Ihrer Einrichtungen stehen zu bestimmten Zeiten leer? Daraus machen wir Erlebnisse.","Lesquelles de vos installations sont vides à certaines heures ? Nous en faisons des expériences."],
+ pk_normal:["Normal price","Preço normal","Normalpreis","Prix normal"], pk_inpkg:["Price in package (0 = gift)","Preço no pacote (0 = presente)","Preis im Package (0 = Geschenk)","Prix dans le forfait (0 = cadeau)"],
+ pk_when:["When? (days, hours)","Quando? (dias, horários)","Wann? (Tage, Uhrzeit)","Quand ? (jours, heures)"], pk_note:["Note","Observação","Bemerkung","Remarque"],
+ pk_lh:["Perks are offered by hotels. As a Local Hero you can skip this step; your partner hotel sets its perks.","Mimos são oferecidos pelos hotéis. Como Local Hero, você pode pular este passo; seu hotel parceiro define os mimos.","Perks bietet das Hotel an. Als Local Hero überspringen Sie diesen Schritt; Ihr Partnerhotel legt seine Perks fest.","Les avantages sont proposés par les hôtels. En tant que Local Hero, passez cette étape ; votre hôtel partenaire fixe les siens."],
+ c_lede:["We add up your prices. Guests only see the total, never the single prices.","Somamos seus preços. O hóspede vê apenas o total, nunca os preços individuais.","Wir zählen Ihre Preise zusammen. Gäste sehen nur den Gesamtpreis, nie die Einzelpreise.","Nous additionnons vos prix. Les voyageurs ne voient que le total, jamais le détail."],
+ c_currency:["Currency","Moeda","Währung","Devise"],
+ c_room:["Room for the whole stay","Quarto para toda a estadia","Zimmer für den ganzen Aufenthalt","Chambre pour tout le séjour"],
+ c_svc:["Services included, per person","Serviços incluídos, por pessoa","Inbegriffene Leistungen pro Person","Prestations incluses, par personne"],
+ c_two:["Package for 2 people in a double room","Pacote para 2 pessoas em quarto duplo","Package für 2 Personen im Doppelzimmer","Forfait pour 2 personnes en chambre double"],
+ c_pp:["That is per person","Ou seja, por pessoa","Das sind pro Person","Soit par personne"],
+ c_one:["For 1 person (room for one)","Para 1 pessoa (quarto individual)","Für 1 Person (Einzelbelegung)","Pour 1 personne (chambre seule)"],
+ c_nosvc:["Prices come from steps 4 and 5.","Os preços vêm dos passos 4 e 5.","Die Preise kommen aus den Schritten 4 und 5.","Les prix proviennent des étapes 4 et 5."],
+ c_commission:["Payment goes directly to you via Stripe. Toubacko keeps 3% on bookings made (launch offer).","O pagamento vai direto para você via Stripe. A Toubacko retém 3% das reservas realizadas (condição de lançamento).","Die Zahlung geht über Stripe direkt an Sie. Toubacko behält 3 % auf realisierte Buchungen (Einführungsangebot).","Le paiement vous est versé directement via Stripe. Toubacko retient 3 % sur les réservations réalisées (offre de lancement)."],
+ a_lede:["Three questions and a calendar. From this we create the booking rules.","Três perguntas e um calendário. Com isso criamos as regras de reserva.","Drei Fragen und ein Kalender. Daraus erstellen wir die Buchungsregeln.","Trois questions et un calendrier. Nous en tirons les règles de réservation."],
+ a_from:["Valid from","Válido de","Gültig ab","Valable du"], a_to:["Valid until","Válido até","Gültig bis","Valable jusqu'au"],
+ a_rooms:["Rooms on free sell","Quartos em free sale","Zimmer auf Free Sell","Chambres en free sale"],
+ a_rooms_hint:["As long as you are not fully booked in the period, we sell these rooms without asking you first. You can stop free sell at any time. 0 = every booking is a request that you confirm first.","Enquanto você não estiver lotado no período, vendemos esses quartos sem consultar antes. Você pode suspender o free sale a qualquer momento. 0 = cada reserva é um pedido que você confirma antes.","Solange Sie im Zeitraum nicht ausgebucht sind, verkaufen wir diese Zimmer ohne Rückfrage. Sie können Free Sell jederzeit stoppen. 0 = jede Buchung ist eine Anfrage, die Sie zuerst bestätigen.","Tant que vous n'êtes pas complet sur la période, nous vendons ces chambres sans vous demander. Vous pouvez arrêter le free sale à tout moment. 0 = chaque réservation est une demande que vous confirmez d'abord."],
+ a_weekend:["Weekends (Fri–Sat nights)","Fins de semana (noites de sex–sáb)","Wochenende (Nächte Fr–Sa)","Week-ends (nuits ven–sam)"],
+ a_same:["Same price","Mesmo preço","Gleicher Preis","Même prix"], a_more:["More expensive by %","Mais caro em %","Teurer um %","Plus cher de %"], a_less:["Cheaper by %","Mais barato em %","Günstiger um %","Moins cher de %"],
+ a_holidays:["Holidays and high season","Feriados e alta temporada","Feiertage und Hochsaison","Jours fériés et haute saison"],
+ a_hol_hint:["Suggested for your country. For each: normal, surcharge, or not bookable.","Sugeridos para seu país. Para cada um: normal, acréscimo ou indisponível.","Vorgeschlagen für Ihr Land. Pro Termin: normal, Zuschlag oder nicht buchbar.","Proposés pour votre pays. Pour chacun : normal, supplément ou non réservable."],
+ a_normal:["Normal","Normal","Normal","Normal"], a_surch:["Surcharge %","Acréscimo %","Zuschlag %","Supplément %"], a_closed:["Not bookable","Indisponível","Nicht buchbar","Non réservable"],
+ a_black:["Other dates when you are not bookable","Outras datas em que você não está disponível","Weitere Daten, an denen Sie nicht buchbar sind","Autres dates où vous n'êtes pas réservable"],
+ a_black_add:["Add period","Adicionar período","Zeitraum hinzufügen","Ajouter une période"],
+ a_cancel:["Cancellation (days before arrival)","Cancelamento (dias antes da chegada)","Stornierung (Tage vor Anreise)","Annulation (jours avant l'arrivée)"],
+ a_free_until:["Free of charge up to","Grátis até","Kostenlos bis","Gratuit jusqu'à"], a_days_before:["days before arrival","dias antes da chegada","Tage vor Anreise","jours avant l'arrivée"],
+ a_from_days:["from","a partir de","ab","à partir de"], a_days:["days","dias","Tagen","jours"],
+ r_lede:["Please check everything once more. After sending, we review and translate your package and show you a preview before it goes online.","Confira tudo mais uma vez. Depois do envio, revisamos e traduzimos seu pacote e mostramos uma prévia antes de publicar.","Bitte prüfen Sie alles noch einmal. Nach dem Absenden prüfen und übersetzen wir Ihr Package und zeigen Ihnen eine Vorschau, bevor es online geht.","Vérifiez tout une dernière fois. Après l'envoi, nous relisons et traduisons votre forfait et vous montrons un aperçu avant la mise en ligne."],
+ r_edit:["Edit","Editar","Ändern","Modifier"], r_missing:["Missing","Faltando","Fehlt","Manquant"],
+ r_agree_texts:["I agree that Toubacko translates my texts and adapts them slightly for different sales channels.","Concordo que a Toubacko traduza meus textos e os adapte levemente para diferentes canais de venda.","Ich bin einverstanden, dass Toubacko meine Texte übersetzt und für verschiedene Vertriebskanäle leicht anpasst.","J'accepte que Toubacko traduise mes textes et les adapte légèrement aux différents canaux de vente."],
+ r_agree_true:["The information is correct and I can deliver what I describe.","As informações estão corretas e posso entregar o que descrevo.","Die Angaben stimmen, und ich kann liefern, was ich beschreibe.","Les informations sont exactes et je peux fournir ce que je décris."],
+ r_send:["Send package","Enviar pacote","Package senden","Envoyer le forfait"],
+ r_fix:["Please complete the fields marked as missing.","Complete os campos marcados como faltando.","Bitte ergänzen Sie die als fehlend markierten Angaben.","Complétez les champs marqués comme manquants."],
+ r_done:["Thank you – your package has been sent.","Obrigado – seu pacote foi enviado.","Danke – Ihr Package ist gesendet.","Merci – votre forfait a été envoyé."],
+ r_done_p:["We will get back to you within a few days with the translated preview.","Retornaremos em poucos dias com a prévia traduzida.","Wir melden uns in wenigen Tagen mit der übersetzten Vorschau.","Nous revenons vers vous sous quelques jours avec l'aperçu traduit."],
+ r_proto:["Prototype: nothing was sent. This is the data the live form will deliver:","Protótipo: nada foi enviado. Estes são os dados que o formulário real enviará:","Prototyp: Es wurde nichts gesendet. Diese Daten liefert das echte Formular:","Prototype : rien n'a été envoyé. Voici les données que le vrai formulaire transmettra :"],
+ r_photos:["photos","fotos","Bilder","photos"], r_services:["services","serviços","Leistungen","prestations"],
+ mon:["Mon","Seg","Mo","Lun"],tue:["Tue","Ter","Di","Mar"],wed:["Wed","Qua","Mi","Mer"],thu:["Thu","Qui","Do","Jeu"],fri:["Fri","Sex","Fr","Ven"],sat:["Sat","Sáb","Sa","Sam"],sun:["Sun","Dom","So","Dim"],
+ yes:["Yes","Sim","Ja","Oui"]
+};
+const OPT = {
+ stype:{activity:["Experience / activity","Experiência / atividade","Erlebnis / Aktivität","Expérience / activité"],cityintro:["City intro / guided walk","Apresentação da cidade / passeio guiado","Stadtführung","Découverte de la ville"],eating:["Meal / food experience","Refeição / experiência gastronômica","Essen / Food-Erlebnis","Repas / expérience culinaire"],transfer:["Transfer","Transfer","Transfer","Transfert"],party:["Party / nightlife","Festa / vida noturna","Party / Nachtleben","Fête / vie nocturne"],gift:["Gift","Presente","Geschenk","Cadeau"],extras:["Other extra","Outro extra","Weiteres Extra","Autre extra"]},
+ style:{comfort:["Comfort","Conforto","Komfort","Confort"],upscale:["Upscale","Superior","Gehoben","Haut de gamme"],highend:["High end","Luxo","High End","Luxe"]},
+ group:{g1:["1–10 people","1–10 pessoas","1–10 Personen","1–10 personnes"],g2:["11–44","11–44","11–44","11–44"],g3:["45–100","45–100","45–100","45–100"],g4:["over 100","mais de 100","über 100","plus de 100"]},
+ board:{ro:["Room only","Só hospedagem","Nur Zimmer","Chambre seule"],bb:["Breakfast","Café da manhã","Frühstück","Petit-déjeuner"],hb:["Half board","Meia pensão","Halbpension","Demi-pension"],fb:["Full board","Pensão completa","Vollpension","Pension complète"],ai:["All inclusive","All inclusive","All inclusive","Tout compris"]},
+ slot:{morning:["Morning","Manhã","morgens","Matin"],midday:["Midday","Meio-dia","mittags","Midi"],afternoon:["Afternoon","Tarde","nachmittags","Après-midi"],evening:["Evening","Noite","abends","Soir"],overnight:["Overnight","Pernoite","Übernachtung","Nuit"],fullday:["Full day","Dia inteiro","ganztags","Journée entière"]},
+ currency:{USD:["USD","USD","USD","USD"],EUR:["EUR","EUR","EUR","EUR"],CHF:["CHF","CHF","CHF","CHF"],BRL:["BRL","BRL","BRL","BRL"]}
+};
+const PERKS = [
+ {g:["Room & stay","Quarto e estadia","Zimmer & Aufenthalt","Chambre & séjour"], items:{
+  welcome:["Welcome drink","Drink de boas-vindas","Welcome Drink","Boisson de bienvenue"], upgrade:["Room upgrade (if available)","Upgrade de quarto (se disponível)","Zimmer-Upgrade (wenn verfügbar)","Surclassement (si disponible)"],
+  early:["Early check-in","Early check-in","Early Check-in","Arrivée anticipée"], late:["Late check-out","Late check-out","Late Check-out","Départ tardif"],
+  fruit:["Fruit or gift in the room","Frutas ou presente no quarto","Früchte oder Geschenk im Zimmer","Fruits ou cadeau en chambre"], parking:["Parking","Estacionamento","Parkplatz","Parking"], wifi:["Wi-Fi","Wi-Fi","WLAN","Wi-Fi"]}},
+ {g:["Food & drink","Comidas e bebidas","Essen & Trinken","Repas & boissons"], items:{
+  breakfast:["Breakfast","Café da manhã","Frühstück","Petit-déjeuner"], dinner:["Dinner","Jantar","Abendessen","Dîner"], wine:["Bottle of wine or sparkling","Garrafa de vinho ou espumante","Flasche Wein oder Sekt","Bouteille de vin ou de bulles"],
+  latelunch:["Late lunch","Almoço tardio","Später Lunch","Déjeuner tardif"], food:["1 food experience (describe)","1 experiência gastronômica (descreva)","1 Food-Erlebnis (beschreiben)","1 expérience culinaire (décrire)"]}},
+ {g:["Wellness","Bem-estar","Wellness","Bien-être"], items:{
+  massage:["Massage","Massagem","Massage","Massage"], spa:["Spa access","Acesso ao spa","Spa-Zugang","Accès au spa"], yoga:["Yoga or fitness class","Aula de yoga ou fitness","Yoga- oder Fitnessstunde","Cours de yoga ou fitness"]}},
+ {g:["Transfers","Transfers","Transfers","Transferts"], items:{
+  airport:["Airport transfer","Transfer do aeroporto","Flughafentransfer","Transfert aéroport"], station:["Bus or train station transfer","Transfer da rodoviária ou estação","Transfer vom Bus- oder Bahnhof","Transfert gare routière ou ferroviaire"]}},
+ {g:["Activities","Atividades","Aktivitäten","Activités"], items:{
+  boat:["Boat trip","Passeio de barco","Bootsausflug","Sortie en bateau"], bike:["Bikes","Bicicletas","Velos","Vélos"], walk:["Guided walk","Caminhada guiada","Geführter Spaziergang","Promenade guidée"],
+  cooking:["Cooking class","Aula de culinária","Kochkurs","Cours de cuisine"], tour:["1 tour on a specific interest (describe)","1 passeio temático (descreva)","1 Tour zu einem Thema (beschreiben)","1 visite thématique (décrire)"]}},
+ {g:["Offers","Ofertas","Angebote","Offres"], items:{
+  stay4:["Stay 4, pay 3","Fique 4, pague 3","4 Nächte bleiben, 3 bezahlen","4 nuits pour le prix de 3"], kids:["Children stay free","Crianças não pagam","Kinder gratis","Enfants gratuits"]}}
+];
+const HOL = {
+ BR:[["Réveillon","2026-12-31","2027-01-01"],["Carnaval","2027-02-06","2027-02-10"],["Semana Santa / Páscoa","2027-03-25","2027-03-28"],["Tiradentes","2027-04-21","2027-04-21"],["Dia do Trabalho","2027-05-01","2027-05-01"],["Corpus Christi","2027-05-27","2027-05-27"],["Férias de julho","2027-07-01","2027-07-31"],["Independência","2027-09-07","2027-09-07"],["Nossa Senhora Aparecida","2027-10-12","2027-10-12"],["Finados","2027-11-02","2027-11-02"],["Proclamação da República","2027-11-15","2027-11-15"],["Consciência Negra","2027-11-20","2027-11-20"],["Natal","2027-12-24","2027-12-25"],["Réveillon 2027/28","2027-12-31","2028-01-01"]],
+ CH:[["Neujahr","2027-01-01","2027-01-02"],["Ostern","2027-03-26","2027-03-29"],["Auffahrt","2027-05-06","2027-05-09"],["Pfingsten","2027-05-15","2027-05-17"],["Nationalfeiertag","2027-08-01","2027-08-01"],["Weihnachten","2027-12-24","2027-12-26"],["Silvester","2027-12-31","2027-12-31"]],
+ FR:[["Jour de l'an","2027-01-01","2027-01-01"],["Pâques","2027-03-28","2027-03-29"],["Fête du travail","2027-05-01","2027-05-01"],["Ascension","2027-05-06","2027-05-09"],["Victoire 1945","2027-05-08","2027-05-08"],["Pentecôte","2027-05-16","2027-05-17"],["Fête nationale","2027-07-14","2027-07-14"],["Assomption","2027-08-15","2027-08-15"],["Toussaint","2027-11-01","2027-11-01"],["Armistice","2027-11-11","2027-11-11"],["Noël","2027-12-24","2027-12-25"]],
+ XX:[["New Year","2027-01-01","2027-01-01"],["Easter","2027-03-26","2027-03-29"],["Christmas","2027-12-24","2027-12-26"],["New Year's Eve","2027-12-31","2027-12-31"]]
+};
+const INTERESTS = [ /* id from the Toubacko back office, labels, country (null = for everyone) */
+ [13,"Luxury Experience","Experiência de luxo","Luxus-Erlebnis","Expérience de luxe",null],[43,"Active & Sporty","Ativo e esportivo","Aktiv & sportlich","Actif & sportif",null],
+ [7,"Architecture","Arquitetura","Architektur","Architecture",null],[12,"Art & Culture","Arte e cultura","Kunst & Kultur","Art & culture",null],
+ [8,"Beach","Praia","Strand","Plage",null],[48,"Bird Watching","Observação de aves","Vogelbeobachtung","Observation des oiseaux",null],
+ [53,"Charme & Romantic","Charme e romance","Charme & Romantik","Charme & romantisme",null],[66,"City Packages","Cidades","Städtereisen","Séjours en ville",null],
+ [56,"Family Kids","Família com crianças","Familie mit Kindern","Famille avec enfants",null],[62,"Family Teenage","Família com adolescentes","Familie mit Teenagern","Famille avec ados",null],
+ [27,"Food, Wine & Aroma","Gastronomia, vinho e aromas","Essen, Wein & Aromen","Gastronomie, vin & arômes",null],[15,"Golf","Golfe","Golf","Golf",null],
+ [16,"Hidden Treasures","Tesouros escondidos","Versteckte Schätze","Trésors cachés",null],[17,"Historical","Histórico","Geschichte","Histoire",null],
+ [42,"Honeymoon","Lua de mel","Flitterwochen","Lune de miel",null],[47,"Horseback Tours","Passeios a cavalo","Reiten","Randonnées à cheval",null],
+ [51,"LGBT+","LGBT+","LGBT+","LGBT+",null],[57,"Nature","Natureza","Natur","Nature",null],[24,"Party","Festa","Party","Fête",null],
+ [63,"Pet Friendly","Aceita pets","Haustiere willkommen","Animaux bienvenus",null],[22,"Sightseeing","Passeios turísticos","Sightseeing","Visites",null],
+ [45,"Singles Travel","Viagem para solteiros","Single-Reisen","Voyages en solo",null],[2,"Soft Adventure / Trekking","Aventura leve / trekking","Sanftes Abenteuer / Trekking","Aventure douce / trekking",null],
+ [61,"Stop Over","Stopover","Stopover","Stopover",null],[26,"Unesco World Heritage","Patrimônio Mundial da Unesco","Unesco-Welterbe","Patrimoine mondial Unesco",null],
+ [58,"Wellness","Bem-estar","Wellness","Bien-être",null],
+ [64,"African Heritage","Herança africana","Afrikanisches Erbe","Héritage africain","BR"],[6,"Amazon Lodge Package","Lodge na Amazônia","Amazonas-Lodge","Lodge en Amazonie","BR"],
+ [10,"Carnival","Carnaval","Karneval","Carnaval","BR"],[23,"Pantanal Wild Life","Fauna do Pantanal","Tierwelt im Pantanal","Faune du Pantanal","BR"]
+];
+const intLabel = id => { const r=INTERESTS.find(x=>x[0]===+id); return r ? r[1+li()] : id; };
+const STEPS = ['master','about','package','acc','services','program','perks','price','avail','review'];
+const DAYS = ['mon','tue','wed','thu','fri','sat','sun'];
+
+/* ---------- example prefill (invented partner, clearly a demo) ---------- */
+const DEMO = {
+ hotel:{type:'hotel', fantasy:'Pousada Exemplo', legal:'Pousada Exemplo Hospedagem Ltda. (Beispiel)', email:'reservas@pousada-exemplo.example', phone:'+55 24 0000-0000', wa:'+55 24 90000-0000', web:'https://pousada-exemplo.example', insta:'@pousadaexemplo', addr:'Rua do Exemplo 10, Centro Histórico', city:'Paraty', country:'BR', langs:'Português, English, Español'},
+ hero:{type:'hero', fantasy:'Marina Exemplo – Paraty Insider', legal:'Marina Exemplo (Beispiel)', email:'marina@exemplo.example', phone:'+55 24 0000-0001', wa:'+55 24 90000-0001', web:'', insta:'@marinaexemplo', addr:'Rua do Exemplo 22', city:'Paraty', country:'BR', langs:'Português, English'}
+};
+function blankState(kind){
+  return {lang:null, step:0, master:{...DEMO[kind]}, masterOk:false,
+    about:{rooms:'',desc:'',strengths:'',contact:{name:'',email:'',phone:''},cc:{role:'gm',email:''},first:'',last:'',prof:'',intro:'',story:'',partnerHotel:''},
+    images:[], portrait:[], logo:[], mainImg:[], copyright:false,
+    acc:{title:DEMO[kind].fantasy,desc:'',roomcat:'',board:'bb',price:''},
+    pkg:{title:'',short:'',nights:3,style:'upscale',group:'g1',interests:[],otherInterest:''},
+    services:[], program:{}, perks:{}, currency:'BRL',
+    avail:{from:'2027-01-01',to:'2027-12-31',rooms:0,weekend:'same',weekendPct:'',hol:{},black:[],c1:30,c2p:50,c2:14,c3p:100,c3:3},
+    agreeTexts:false, agreeTrue:false, sent:false};
+}
+
+/* ---------- state + storage ---------- */
+let kind = 'hotel';
+let S = blankState(kind);
+const KEY = LIVE ? 'tbk-pkgform-' + CODE.toUpperCase() : 'tbk-pkgform-proto-v3';
+try { const raw = localStorage.getItem(KEY); if (raw) { const o = JSON.parse(raw); if (o && o.master) { hadDraft = true; S = Object.assign(blankState(o.master.type==='hero'?'hero':'hotel'), o); kind = S.master.type==='hero'?'hero':'hotel'; } } } catch(e) {}
+if (!S.lang) { const n=(navigator.language||'en').slice(0,2); S.lang = L.includes(n)?n:'en'; }
+let saveTimer=null;
+function save(){ clearTimeout(saveTimer); saveTimer=setTimeout(()=>{ try{ const c=JSON.parse(JSON.stringify(S)); ['images','portrait','logo','mainImg'].forEach(k=>c[k]=[]); c.services.forEach(s=>s.photos=[]); localStorage.setItem(KEY, JSON.stringify(c)); document.getElementById('saved').textContent=t('saved'); }catch(e){} },400); }
+
+const li = () => L.indexOf(S.lang);
+const t = k => (T[k]||[k])[li()] ?? T[k][0];
+const o = (g,k) => (OPT[g][k]||[k])[li()];
+const esc = s => String(s??'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid = () => Math.random().toString(36).slice(2,9);
+function getP(p){ return p.split('.').reduce((a,k)=>a==null?a:a[k], S); }
+function setP(p,v){ const ks=p.split('.'); let a=S; for(let i=0;i<ks.length-1;i++){ if(a[ks[i]]==null) a[ks[i]]={}; a=a[ks[i]]; } a[ks[ks.length-1]]=v; }
+const isHero = () => S.master.type==='hero';
+
+/* ---------- small builders ---------- */
+function inp(path,label,{type='text',req=false,hint='',ph='',full=false,max=0,rows=0}={}){
+  const id='f-'+path.replace(/\./g,'-'); const v=getP(path)??'';
+  const ctl = rows ? `<textarea id="${id}" data-k="${path}" rows="${rows}" ${max?`data-max="${max}"`:''} placeholder="${esc(ph)}">${esc(v)}</textarea>`
+                   : `<input id="${id}" type="${type}" data-k="${path}" value="${esc(v)}" placeholder="${esc(ph)}" ${type==='number'?'inputmode="decimal" min="0" step="any"':''}>`;
+  return `<div class="field ${full?'full':''}"><label for="${id}" class="${req?'req':''}">${esc(label)}</label>${ctl}${max?`<div class="count" data-count="${id}">${String(v).length} / ${max}</div>`:''}${hint?`<span class="hint">${esc(hint)}</span>`:''}</div>`;
+}
+function sel(path,label,group,{req=false,full=false}={}){
+  const id='f-'+path.replace(/\./g,'-'); const v=getP(path);
+  return `<div class="field ${full?'full':''}"><label for="${id}" class="${req?'req':''}">${esc(label)}</label><select id="${id}" data-k="${path}">${Object.keys(OPT[group]).map(k=>`<option value="${k}" ${k===v?'selected':''}>${esc(o(group,k))}</option>`).join('')}</select></div>`;
+}
+function chk(path,label,id){ return `<label class="check" for="${id}"><input type="checkbox" id="${id}" data-k="${path}" ${getP(path)?'checked':''}><span>${esc(label)}</span></label>`; }
+function note(k,warn){ return `<div class="note ${warn?'warn':''}"><span>${esc(t(k))}</span></div>`; }
+function head(i,k,lede){ return `<div class="panel-head"><span class="eyebrow">${esc(t('step'))} ${i+1} ${esc(t('of'))} ${STEPS.length}</span><h2>${esc(t('st_'+k))}</h2>${lede?`<p class="lede">${esc(t(lede))}</p>`:''}</div>`; }
+function picsBlock(listPath,max,dropId,{withMain=false}={}){
+  const list=getP(listPath)||[];
+  return `<label class="drop" id="${dropId}" for="${dropId}-in" data-list="${listPath}" data-max="${max}"><input type="file" id="${dropId}-in" accept="image/jpeg,image/webp,image/png" ${max>1?'multiple':''} data-list="${listPath}" data-max="${max}">${esc(t('i_drop'))}</label>
+  <div class="pics">${list.map((p,i)=>`<div class="pic ${withMain&&p.main?'main':''}"><img src="${p.src}" alt="${esc(p.title||p.name)}">
+    <div class="body">${max>1?`<input type="text" id="pt-${dropId}-${i}" aria-label="${esc(t('i_title'))}" placeholder="${esc(t('i_title'))}" data-k="${listPath}.${i}.title" value="${esc(p.title)}">
+    <textarea rows="2" id="px-${dropId}-${i}" aria-label="${esc(t('i_text'))}" placeholder="${esc(t('i_text'))}" data-k="${listPath}.${i}.text">${esc(p.text)}</textarea>`:''}
+    <div class="meta"><span class="${p.w&&p.w<1080?'low':''}">${p.w?`${p.w}×${p.h}px`:''}${p.w&&p.w<1080?' · '+esc(t('i_low')):''}</span>
+    <span>${withMain?`<button type="button" class="star" data-main="${listPath}" data-i="${i}" aria-pressed="${!!p.main}">${esc(t('i_main'))}</button>`:''}
+    <button type="button" class="btn-link" data-rmpic="${listPath}" data-i="${i}">${esc(t('i_remove'))}</button></span></div></div></div>`).join('')}</div>`;
+}
+
+/* ---------- steps ---------- */
+const R = {};
+R.master = i => `${head(i,'master','m_lede')}
+ <div class="note"><span><b>${esc(t('welcome_h'))}:</b> ${esc(t('any_lang'))} ${esc(t('adapt'))}</span></div>
+ <fieldset class="prefilled"><div class="grid">
+  ${inp('master.fantasy',t('f_fantasy'),{req:true})}${inp('master.legal',t('f_legal'))}
+  ${inp('master.email',t('f_email'),{type:'email',req:true})}${inp('master.phone',t('f_phone'),{type:'tel'})}
+  ${inp('master.wa',t('f_wa'),{type:'tel'})}${inp('master.web',t('f_web'),{type:'url'})}
+  ${inp('master.insta',t('f_insta'))}${inp('master.langs',t('f_langs'))}
+  ${inp('master.addr',t('f_addr'),{full:true})}${inp('master.city',t('f_city'))}
+  <div class="field"><label for="f-master-country">${esc(t('f_country'))}</label><select id="f-master-country" data-k="master.country">${[['BR','Brasil'],['CH','Schweiz / Suisse'],['FR','France'],['PT','Portugal'],['DE','Deutschland'],['IT','Italia'],['AR','Argentina'],['CY','Cyprus'],['XX','…']].map(([k,n])=>`<option value="${k}" ${S.master.country===k?'selected':''}>${n}</option>`).join('')}</select></div>
+ </div></fieldset>
+ <fieldset><span class="lbl">${esc(t('f_logo'))}</span>${picsBlock('logo',1,'d-logo')}</fieldset>
+ ${chk('masterOk',t('m_confirm'),'c-masterok')}`;
+
+R.about = i => isHero() ? `${head(i,'about','lh_lede')}
+ <fieldset><div class="grid">
+  ${inp('about.first',t('lh_first'),{req:true})}${inp('about.last',t('lh_last'))}
+  ${inp('about.prof',t('lh_prof'),{req:true,full:true})}
+  ${inp('about.intro',t('lh_intro'),{rows:2,max:200,full:true,req:true})}
+  ${inp('about.story',t('lh_story'),{rows:6,max:2000,full:true,hint:t('lh_story_hint')})}
+  ${inp('about.partnerHotel',t('lh_hotel'),{full:true,req:true,hint:t('lh_hotel_hint')})}
+ </div></fieldset>
+ <fieldset><span class="lbl">${esc(t('lh_portrait'))}</span>${picsBlock('portrait',1,'d-portrait')}</fieldset>`
+ : `${head(i,'about')}
+ <fieldset><div class="grid">
+  ${inp('about.rooms',t('h_rooms'),{type:'number',req:true,hint:t('h_rooms_hint')})}<div></div>
+  ${inp('about.desc',t('h_desc'),{rows:5,max:1500,full:true,req:true})}
+  ${inp('about.strengths',t('h_strengths'),{rows:2,full:true})}
+ </div></fieldset>
+ <fieldset><legend>${esc(t('c_title'))}</legend><span class="hint">${esc(t('c_title_hint'))}</span>
+  <div class="grid three">${inp('about.contact.name',t('c_name'),{req:true})}${inp('about.contact.email','E-mail',{type:'email',req:true})}${inp('about.contact.phone',t('f_phone'),{type:'tel'})}</div>
+ </fieldset>
+ <fieldset><legend>${esc(t('c_copy'))}</legend><span class="hint">${esc(t('c_copy_hint'))}</span>
+  <div class="grid three"><div class="field"><label for="f-about-cc-role">${esc(t('c_role'))}</label><select id="f-about-cc-role" data-k="about.cc.role">${[['gm','c_gm'],['res','c_res'],['sales','c_sales']].map(([k,l])=>`<option value="${k}" ${S.about.cc.role===k?'selected':''}>${esc(t(l))}</option>`).join('')}</select></div>
+  ${inp('about.cc.email','E-mail',{type:'email'})}</div>
+ </fieldset>`;
+
+R.package = i => `${head(i,'package','p_lede')}
+ <fieldset><div class="grid">
+  ${inp('pkg.title',t('p_title'),{req:true,full:true,hint:t('p_title_hint')})}
+  ${inp('pkg.short',t('p_short'),{rows:3,max:200,full:true,req:true,hint:t('p_short_hint')})}
+ </div><div class="grid three">
+  <div class="field"><label for="f-pkg-nights" class="req">${esc(t('p_nights'))}</label><select id="f-pkg-nights" data-k="pkg.nights" data-num="1" data-rerender="1">${Array.from({length:14},(_,n)=>`<option ${S.pkg.nights==n+1?'selected':''}>${n+1}</option>`).join('')}</select></div>
+  ${sel('pkg.style',t('p_style'),'style')}${sel('pkg.group',t('p_group'),'group')}
+ </div></fieldset>
+ <fieldset><span class="lbl">${esc(t('p_main'))}</span><span class="hint">${esc(t('p_main_hint'))}</span>${picsBlock('mainImg',1,'d-main')}</fieldset>
+ <fieldset><span class="lbl req">${esc(t('p_interests'))}</span><span class="hint">${esc(t('p_interests_hint'))}</span>
+  <div class="chips">${INTERESTS.filter(r=>!r[5]||r[5]===S.master.country).map(r=>`<button type="button" class="chip" data-int="${r[0]}" aria-pressed="${S.pkg.interests.includes(r[0])}">${esc(r[1+li()])}</button>`).join('')}</div>
+  <div class="grid">${inp('pkg.otherInterest',t('p_other'))}</div></fieldset>`;
+
+R.acc = i => `${head(i,'acc','acc_lede')}
+ <div class="item"><div class="item-head"><h3>${esc(t('acc_title'))}</h3><span class="badge">${esc(t('acc_title'))}</span></div>
+  <div class="grid">${inp('acc.title',t('acc_name'),{req:true,full:true})}
+   ${inp('acc.desc',t('acc_desc'),{rows:3,full:true})}
+   ${inp('acc.roomcat',t('s_room_cat'))}${sel('acc.board',t('s_board'),'board')}
+   ${inp('acc.price',t('s_price_room')+' ('+S.currency+')',{type:'number',req:true})}</div>
+  <div class="field"><span class="lbl">${esc(t('acc_photos'))}</span><span class="hint">${esc(t('i_where'))}</span></div>
+  ${note('copyright',true)}
+  ${LIVE?`<span class="hint">${esc(t('live_photos_draft'))}</span>`:''}${picsBlock('images',10,'d-images')}
+  ${chk('copyright',t('copyright_ok'),'c-copyright')}
+ </div>`;
+R.services = i => `${head(i,'services','s_lede')}
+ ${S.services.map((s,n)=>svcCard(s,n)).join('')}
+ <div><button type="button" class="btn btn-ghost" id="add-svc">+ ${esc(t('s_add'))}</button></div>`;
+function svcCard(s,n){ const p='services.'+n;
+ return `<div class="item"><div class="item-head"><h3>${n+1}. ${esc(s.title||o('stype',s.type))}</h3><span class="badge">${esc(o('stype',s.type))}</span></div>
+ <div class="grid">${sel(p+'.type',t('s_type'),'stype')}${inp(p+'.title',t('s_name'),{req:true})}
+  ${inp(p+'.desc',t('s_desc'),{rows:3,full:true})}${inp(p+'.incl',t('s_incl'),{rows:2,full:true,hint:t('s_incl_hint')})}
+  <div class="field full"><label for="f-${p.replace('.','-')}-status">${esc(t('s_status'))}</label><select id="f-${p.replace('.','-')}-status" data-k="${p}.status" data-rerender="1">${['included','suggested','optional'].map(k=>`<option value="${k}" ${s.status===k?'selected':''}>${esc(t('s_'+k))}</option>`).join('')}</select></div>
+  ${s.status==='included'?inp(p+'.price',t('s_cost')+' ('+S.currency+')',{type:'number',hint:t('s_cost_hint')}):''}
+ </div>
+ <div class="field"><span class="lbl">${esc(t('s_days'))}</span><div class="chips">${DAYS.map(d=>`<button type="button" class="chip" data-svcday="${n}" data-d="${d}" aria-pressed="${s.days.includes(d)}">${esc(t(d))}</button>`).join('')}</div></div>
+ <div class="field"><span class="lbl">${esc(t('s_times'))}</span><div class="chips">${['morning','midday','afternoon','evening','fullday'].map(d=>`<button type="button" class="chip" data-svctime="${n}" data-d="${d}" aria-pressed="${(s.times||[]).includes(d)}">${esc(t('tod_'+d))}</button>`).join('')}</div></div>
+ <div class="field"><span class="lbl">${esc(t('s_photos'))}</span>${picsBlock(p+'.photos',5,'d-svc-'+s.id)}</div>
+ <div><button type="button" class="btn-link" data-rmsvc="${n}">${esc(t('s_remove'))}</button></div></div>`; }
+
+R.program = i => { const days=(+S.pkg.nights||1)+1;
+ const svcs=S.services.filter(s=>s.type!=='accommodation');
+ let h=`${head(i,'program','pr_lede')}`;
+ 
+ h+=`<div class="days">`;
+ for(let d=1; d<=days; d++){ const rows=S.program[d]||[];
+  h+=`<div class="item day"><h3>${esc(t('pr_day'))} ${d}</h3>${rows.map((r,n)=>{ const p=`program.${d}.${n}`;
+   return `<div class="row"><select aria-label="${esc(t('pr_slot'))}" id="f-pr-${d}-${n}-slot" data-k="${p}.slot">${Object.keys(OPT.slot).map(k=>`<option value="${k}" ${r.slot===k?'selected':''}>${esc(o('slot',k))}</option>`).join('')}</select>
+    <div class="wide" style="display:flex;flex-direction:column;gap:6px;min-width:0"><select aria-label="${esc(t('pr_what'))}" id="f-pr-${d}-${n}-svc" data-k="${p}.svc" data-rerender="1"><option value="">${esc(t('pr_free'))}</option><option value="acc" ${r.svc==='acc'?'selected':''}>${esc(t('acc_title')+': '+(S.acc.title||''))}</option>${S.services.map(s=>`<option value="${s.id}" ${r.svc===s.id?'selected':''}>${esc(s.title||o('stype',s.type))}</option>`).join('')}</select>
+    ${r.svc?'':`<input type="text" aria-label="${esc(t('pr_what'))}" id="f-pr-${d}-${n}-free" data-k="${p}.free" value="${esc(r.free)}" placeholder="${esc(t('pr_free_ph'))}">`}
+    </div>
+    <select aria-label="${esc(t('pr_st'))}" id="f-pr-${d}-${n}-st" data-k="${p}.st">${['included','optional','suggested'].map(k=>`<option value="${k}" ${(r.st||'included')===k?'selected':''}>${esc(t('pr_'+k))}</option>`).join('')}</select>
+    <input type="time" aria-label="${esc(t('pr_time'))}" id="f-pr-${d}-${n}-time" data-k="${p}.time" value="${esc(r.time)}">
+    <button type="button" class="btn-link" aria-label="${esc(t('i_remove'))}" data-rmrow="${d}" data-i="${n}">✕</button></div>`; }).join('')}
+   <div style="margin-top:10px"><button type="button" class="btn btn-ghost btn-small" data-addrow="${d}">+ ${esc(t('pr_add'))}</button></div></div>`; }
+ return h+`</div>`; };
+
+R.perks = i => { if(isHero()) return `${head(i,'perks')}${note('pk_lh')}`;
+ return `${head(i,'perks','pk_lede')}${note('pk_explain')}${note('pk_smart_q')}
+ ${PERKS.map(g=>`<div class="perkgroup"><h3>${esc(g.g[li()])}</h3>${Object.entries(g.items).map(([k,lab])=>{ const v=S.perks[k]||{lvl:'none'};
+  return `<div class="perk"><span>${esc(lab[li()])}</span><span class="levels" role="group" aria-label="${esc(lab[li()])}">${['basic','premium','smart','none'].map(l=>`<button type="button" class="l-${l}" data-perk="${k}" data-l="${l}" aria-pressed="${v.lvl===l}">${esc(t('pk_'+l))}</button>`).join('')}</span>
+  ${v.lvl==='premium'||v.lvl==='smart'?`<div class="extra">${inp(`perks.${k}.normal`,t('pk_normal'),{type:'number'})}${inp(`perks.${k}.inpkg`,t('pk_inpkg'),{type:'number'})}${v.lvl==='smart'?inp(`perks.${k}.when`,t('pk_when')):inp(`perks.${k}.note`,t('pk_note'))}</div>`:''}</div>`; }).join('')}</div>`).join('')}`; };
+
+function calc(){ const acc=+S.acc.price||0;
+ const pp=S.services.filter(s=>s.status==='included').reduce((a,s)=>a+(+s.price||0),0);
+ return {acc,pp,two:acc+2*pp,one:acc+pp}; }
+const money = v => new Intl.NumberFormat(S.lang==='pt'?'pt-BR':S.lang==='de'?'de-CH':S.lang==='fr'?'fr-FR':'en-GB',{style:'currency',currency:S.currency,maximumFractionDigits:0}).format(v||0);
+R.price = i => { const c=calc();
+ return `${head(i,'price','c_lede')}
+ <div class="grid three">${sel('currency',t('c_currency'),'currency')}</div>
+ ${S.acc.price?'':note('c_nosvc',true)}
+ <div class="sum table-x"><table><tbody>
+  <tr><td>${esc(t('c_room'))}</td><td>${money(c.acc)}</td></tr>
+  <tr><td>${esc(t('c_svc'))}</td><td>${money(c.pp)}</td></tr>
+  ${S.services.filter(s=>s.status==='included').map(s=>`<tr><td style="padding-left:28px;color:var(--muted)">${esc(s.title||o('stype',s.type))}</td><td style="color:var(--muted)">${money(+s.price||0)}</td></tr>`).join('')}
+  <tr class="total"><td>${esc(t('c_two'))}</td><td>${money(c.two)}</td></tr>
+  <tr><td>${esc(t('c_pp'))}</td><td>${money(c.two/2)}</td></tr>
+  <tr><td>${esc(t('c_one'))}</td><td>${money(c.one)}</td></tr>
+ </tbody></table></div>${note('c_commission')}`; };
+
+R.avail = i => { const hol=HOL[S.master.country]||HOL.XX; const a=S.avail;
+ return `${head(i,'avail','a_lede')}
+ <div class="note"><span><b>${esc(t('a_for'))} ${esc(S.pkg.title||'–')}</b><br>${esc(t('a_only'))}</span></div>
+ <fieldset><div class="grid three">${inp('avail.from',t('a_from'),{type:'date'})}${inp('avail.to',t('a_to'),{type:'date'})}${inp('avail.rooms',t('a_rooms'),{type:'number',hint:t('a_rooms_hint')})}</div></fieldset>
+ <fieldset><legend>${esc(t('a_weekend'))}</legend><div class="grid three">
+  <div class="field"><label for="f-avail-weekend">${esc(t('a_weekend'))}</label><select id="f-avail-weekend" data-k="avail.weekend" data-rerender="1">${['same','more','less'].map(k=>`<option value="${k}" ${a.weekend===k?'selected':''}>${esc(t('a_'+k))}</option>`).join('')}</select></div>
+  ${a.weekend!=='same'?inp('avail.weekendPct','%',{type:'number'}):''}</div></fieldset>
+ <fieldset><legend>${esc(t('a_holidays'))}</legend><span class="hint">${esc(t('a_hol_hint'))}</span>
+  ${hol.map(([n,f,to],k)=>{ const v=a.hol[k]||{m:'normal'}; const fmt=d=>new Date(d+'T12:00:00').toLocaleDateString(S.lang==='pt'?'pt-BR':S.lang,{day:'numeric',month:'short',year:'numeric'});
+   return `<div class="hol"><span>${esc(n)}<br><span class="d">${fmt(f)}${f!==to?' – '+fmt(to):''}</span></span>
+   <span class="levels" role="group" aria-label="${esc(n)}">${['normal','surch','closed'].map(m=>`<button type="button" class="${m==='normal'?'l-none':m==='surch'?'l-premium':'l-basic'}" data-hol="${k}" data-m="${m}" aria-pressed="${v.m===m}">${esc(t('a_'+m))}</button>`).join('')}</span>
+   ${v.m==='surch'?`<input type="number" id="f-hol-${k}" aria-label="%" data-k="avail.hol.${k}.pct" value="${esc(v.pct)}" placeholder="%">`:'<span></span>'}</div>`; }).join('')}
+ </fieldset>
+ <fieldset><legend>${esc(t('a_black'))}</legend>
+  ${a.black.map((b,k)=>`<div class="grid three" style="align-items:end">${inp(`avail.black.${k}.from`,t('a_from'),{type:'date'})}${inp(`avail.black.${k}.to`,t('a_to'),{type:'date'})}<div><button type="button" class="btn-link" data-rmblack="${k}">${esc(t('i_remove'))}</button></div></div>`).join('')}
+  <div><button type="button" class="btn btn-ghost btn-small" id="add-black">+ ${esc(t('a_black_add'))}</button></div></fieldset>
+ <fieldset><legend>${esc(t('a_cancel'))}</legend><div class="tiers">
+  <div class="tier">${esc(t('a_free_until'))} <input type="number" aria-label="${esc(t('a_days'))}" id="f-c1" data-k="avail.c1" value="${esc(a.c1)}"> ${esc(t('a_days_before'))}</div>
+  <div class="tier"><input type="number" aria-label="%" id="f-c2p" data-k="avail.c2p" value="${esc(a.c2p)}"> % ${esc(t('a_from_days'))} <input type="number" aria-label="${esc(t('a_days'))}" id="f-c2" data-k="avail.c2" value="${esc(a.c2)}"> ${esc(t('a_days'))}</div>
+  <div class="tier"><input type="number" aria-label="%" id="f-c3p" data-k="avail.c3p" value="${esc(a.c3p)}"> % ${esc(t('a_from_days'))} <input type="number" aria-label="${esc(t('a_days'))}" id="f-c3" data-k="avail.c3" value="${esc(a.c3)}"> ${esc(t('a_days'))}</div>
+ </div></fieldset>`; };
+
+function missing(){ const m={};
+ const add=(s,k)=>{ (m[s]=m[s]||[]).push(k); };
+ if(!S.master.fantasy) add('master','f_fantasy'); if(!S.master.email) add('master','f_email'); if(!S.masterOk) add('master','m_confirm');
+ if(isHero()){ if(!S.about.first) add('about','lh_first'); if(!S.about.prof) add('about','lh_prof'); if(!S.about.intro) add('about','lh_intro'); if(!S.about.partnerHotel) add('about','lh_hotel'); }
+ else { if(!S.about.rooms) add('about','h_rooms'); if(!S.about.desc) add('about','h_desc'); if(!S.about.contact.email) add('about','c_title'); }
+ if(!S.pkg.title) add('package','p_title'); if(!S.pkg.short) add('package','p_short'); if(!S.pkg.interests.length) add('package','p_interests');
+ if(!S.acc.title) add('acc','acc_name'); if(!S.acc.price) add('acc','s_price_room'); if(!S.images.length) add('acc','acc_photos'); if(S.images.length&&!S.copyright) add('acc','copyright_ok');
+ return m; }
+R.review = i => { if(S.sent) return sentView();
+ const m=missing(); const c=calc();
+ const blk=(k,rows)=>`<div class="blk"><h3><span>${esc(t('st_'+k))}</span><button type="button" class="btn-link" style="color:var(--blue)" data-go="${STEPS.indexOf(k)}">${esc(t('r_edit'))}</button></h3>
+  ${m[k]?`<p class="missing">${esc(t('r_missing'))}: ${m[k].map(x=>esc(t(x))).join(', ')}</p>`:''}<dl>${rows.map(([a,b])=>`<dt>${esc(a)}</dt><dd>${esc(b||'–')}</dd>`).join('')}</dl></div>`;
+ return `${head(i,'review','r_lede')}<div class="review">
+ ${blk('master',[[t('f_fantasy'),S.master.fantasy],[t('f_email'),S.master.email],[t('f_city'),S.master.city+', '+S.master.country]])}
+ ${blk('about',isHero()?[[t('lh_first'),S.about.first+' '+S.about.last],[t('lh_prof'),S.about.prof],[t('lh_hotel'),S.about.partnerHotel]]:[[t('h_rooms'),S.about.rooms],[t('c_title'),S.about.contact.name+' '+S.about.contact.email],[t('c_copy'),S.about.cc.email]])}
+ ${blk('package',[[t('p_title'),S.pkg.title],[t('p_nights'),S.pkg.nights],[t('p_interests'),S.pkg.interests.map(intLabel).join(', ')+(S.pkg.otherInterest?' + '+S.pkg.otherInterest:'')]])}
+ ${blk('acc',[[t('acc_name'),S.acc.title],[t('acc_photos'),S.images.length+' '+t('r_photos')]])}
+ ${blk('services',[[t('st_services'),S.services.length+(S.services.length?': '+S.services.map(s=>s.title||o('stype',s.type)).join(', '):'')]])}
+ ${blk('price',[[t('c_two'),money(c.two)],[t('c_pp'),money(c.two/2)]])}
+ ${blk('avail',[[t('a_from')+' – '+t('a_to'),S.avail.from+' – '+S.avail.to],[t('a_cancel'),`${S.avail.c1} / ${S.avail.c2p}% ${S.avail.c2} / ${S.avail.c3p}% ${S.avail.c3}`]])}
+ </div>
+ ${chk('agreeTexts',t('r_agree_texts'),'c-agree1')}${chk('agreeTrue',t('r_agree_true'),'c-agree2')}
+ <p class="missing" id="send-err" hidden>${esc(t('r_fix'))}</p>`; };
+function sentView(){ if(LIVE) return `<div class="done-msg"><div class="tick">✓</div><h2>${esc(t('r_done'))}</h2><p class="lede">${esc(t('r_done_p'))}</p></div>`;
+ const c=JSON.parse(JSON.stringify(S)); const strip=a=>(a||[]).map(p=>({file:p.name,title:p.title,text:p.text,width:p.w,height:p.h,main:!!p.main}));
+ c.images=strip(S.images); c.portrait=strip(S.portrait); c.logo=strip(S.logo); c.mainImg=strip(S.mainImg); c.services=S.services.map(s=>({...s,photos:strip(s.photos)})); c.price=calc(); delete c.step; delete c.sent;
+ return `<div class="done-msg"><div class="tick">✓</div><h2>${esc(t('r_done'))}</h2><p class="lede">${esc(t('r_done_p'))}</p></div>
+ ${note('r_proto',true)}<pre class="json">${esc(JSON.stringify(c,null,2))}</pre>
+ <div><button type="button" class="btn btn-ghost" id="unsend">${esc(t('back'))}</button></div>`; }
+
+/* ---------- render ---------- */
+const main=document.getElementById('main'), nav=document.getElementById('steps');
+function render(){
+  document.documentElement.lang = S.lang==='pt'?'pt-BR':S.lang;
+  document.querySelectorAll('.lang button').forEach(b=>b.setAttribute('aria-pressed', b.dataset.lang===S.lang));
+  if (BOOT !== 'ready') { nav.innerHTML=''; main.innerHTML = `<section class="panel"><p class="${BOOT==='loading'?'lede':'missing'}">${esc(t(BOOT==='loading'?'live_loading':BOOT==='error'?'live_error':'live_badlink'))}</p></section>`; return; }
+  document.getElementById('pt-hotel').setAttribute('aria-pressed', !isHero()); document.getElementById('pt-hero').setAttribute('aria-pressed', isHero());
+  const m=missing();
+  nav.innerHTML = STEPS.map((k,i)=>`<button type="button" data-go="${i}" ${i===S.step?'aria-current="step"':''} class="${i<S.step&&!m[k]?'done':''}"><span class="n">${i<S.step&&!m[k]?'✓':i+1}</span><span class="t">${esc(t('st_'+k))}</span></button>`).join('');
+  const last = S.step===STEPS.length-1;
+  main.innerHTML = `<section class="panel">${R[STEPS[S.step]](S.step)}
+   ${S.sent?'':`<div class="actions"><button type="button" class="btn btn-ghost" id="prev" ${S.step===0?'hidden':''}>← ${esc(t('back'))}</button><span></span>
+   <button type="button" class="btn btn-primary" id="${last?'send':'next'}">${last?esc(t('r_send')):esc(t('next'))+' →'}</button></div>`}</section>`;
+}
+function go(n){ S.step=Math.max(0,Math.min(STEPS.length-1,n)); save(); render(); window.scrollTo({top:0,behavior:'smooth'}); }
+
+/* ---------- events ---------- */
+main.addEventListener('input', e=>{ const el=e.target, k=el.dataset.k; if(!k) return;
+  let v = el.type==='checkbox' ? el.checked : el.value; if(el.dataset.num) v=+v; setP(k,v);
+  const pm=k.match(/^program\.(\d+)\.(\d+)\.svc$/); if(pm&&v&&v!=='acc'){ const sv=S.services.find(x=>x.id===v); if(sv) S.program[pm[1]][+pm[2]].st=sv.status; }
+  if(el.dataset.max){ const c=main.querySelector(`[data-count="${el.id}"]`); if(c){ c.textContent=`${el.value.length} / ${el.dataset.max}`; c.classList.toggle('over', el.value.length>+el.dataset.max); } }
+  if(el.dataset.rerender || el.tagName==='SELECT' && /\.type$|^currency$|cc\.role$/.test(k)) render();
+  if(el.type==='number' && STEPS[S.step]==='price') render();
+  save(); });
+main.addEventListener('change', e=>{ const el=e.target;
+  if(el.type==='file'){ addFiles(el.files, el.dataset.list, +el.dataset.max); el.value=''; } });
+main.addEventListener('click', e=>{ const b=e.target.closest('button'); if(!b) return; const d=b.dataset;
+  if(b.id==='next') return go(S.step+1);
+  if(b.id==='prev') return go(S.step-1);
+  if(b.id==='send'){ const ok=!Object.keys(missing()).length && S.agreeTexts && S.agreeTrue; if(!ok){ document.getElementById('send-err').hidden=false; return; } if(LIVE){ sendLive(b); return; } S.sent=true; save(); render(); return; }
+  if(b.id==='unsend'){ S.sent=false; render(); return; }
+  if(d.go!=null) return go(+d.go);
+  if(d.int){ const a=S.pkg.interests; const v=+d.int; const i=a.indexOf(v); i<0?a.push(v):a.splice(i,1); }
+  else if(b.id==='add-svc'){ S.services.push({id:uid(),type:'activity',title:'',desc:'',incl:'',price:'',status:'included',days:[...DAYS],times:[],photos:[]}); }
+  else if(d.rmsvc!=null){ const id=S.services[+d.rmsvc].id; S.services.splice(+d.rmsvc,1); Object.values(S.program).forEach(rows=>rows.forEach(r=>{ if(r.svc===id) r.svc=''; })); }
+  else if(d.svctime!=null){ const sv=S.services[+d.svctime]; sv.times=sv.times||[]; const i=sv.times.indexOf(d.d); i<0?sv.times.push(d.d):sv.times.splice(i,1); }
+  else if(d.svcday!=null){ const a=S.services[+d.svcday].days; const i=a.indexOf(d.d); i<0?a.push(d.d):a.splice(i,1); }
+  else if(d.addrow){ (S.program[d.addrow]=S.program[d.addrow]||[]).push({slot:'morning',svc:'',free:'',time:'',st:'included'}); }
+  else if(d.rmrow){ S.program[d.rmrow].splice(+d.i,1); }
+  else if(d.perk){ S.perks[d.perk]=Object.assign(S.perks[d.perk]||{}, {lvl:d.l}); }
+  else if(d.hol!=null){ S.avail.hol[d.hol]=Object.assign(S.avail.hol[d.hol]||{}, {m:d.m}); }
+  else if(b.id==='add-black'){ S.avail.black.push({from:'',to:''}); }
+  else if(d.rmblack!=null){ S.avail.black.splice(+d.rmblack,1); }
+  else if(d.rmpic){ getP(d.rmpic).splice(+d.i,1); }
+  else if(d.main){ getP(d.main).forEach((p,i)=>p.main=(i===+d.i)); }
+  else return;
+  save(); render(); });
+['dragover','dragleave','drop'].forEach(ev=>main.addEventListener(ev, e=>{ const z=e.target.closest('.drop'); if(!z) return; e.preventDefault();
+  z.classList.toggle('over', ev==='dragover'); if(ev==='drop') addFiles(e.dataTransfer.files, z.dataset.list, +z.dataset.max); }));
+function addFiles(files,listPath,max){ let list=getP(listPath); if(!Array.isArray(list)){ list=[]; setP(listPath,list); }
+  const arr=[...files].filter(f=>/^image\//.test(f.type));
+  for(const f of arr){ if(list.length>=max){ if(max>1) alert0(t('i_max')); break; } if(f.size>10*1024*1024){ alert0(t('i_big')+' ('+f.name+')'); continue; }
+    const entry={name:f.name,title:'',text:'',src:'',w:0,h:0,main:false}; if(max===1) list.length=0; list.push(entry);
+    const r=new FileReader(); r.onload=()=>{ entry.src=r.result; const im=new Image(); im.onload=()=>{ entry.w=im.naturalWidth; entry.h=im.naturalHeight; render(); }; im.src=r.result; }; r.readAsDataURL(f); }
+}
+function alert0(msg){ const n=document.createElement('div'); n.className='note warn'; n.innerHTML=`<span>${esc(msg)}</span>`; main.querySelector('.panel')?.prepend(n); setTimeout(()=>n.remove(),5000); }
+nav.addEventListener('click', e=>{ const b=e.target.closest('button[data-go]'); if(b) go(+b.dataset.go); });
+document.querySelectorAll('.lang button').forEach(b=>b.addEventListener('click',()=>{ S.lang=b.dataset.lang; save(); render(); }));
+function switchKind(k){ if((k==='hero')===isHero()) return; const keep={lang:S.lang,step:S.step}; S=blankState(k); Object.assign(S,keep); kind=k; save(); render(); }
+document.getElementById('pt-hotel').addEventListener('click',()=>switchKind('hotel'));
+document.getElementById('pt-hero').addEventListener('click',()=>switchKind('hero'));
+
+/* ---------- live mode: load master data, upload photos, submit ---------- */
+function post(obj){ return fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(obj)}).then(r=>r.json()); }
+function shrink(src){ return new Promise((res,rej)=>{ const im=new Image(); im.onload=()=>{ const m=2000, k=Math.min(1, m/Math.max(im.naturalWidth,im.naturalHeight));
+  const c=document.createElement('canvas'); c.width=Math.round(im.naturalWidth*k); c.height=Math.round(im.naturalHeight*k);
+  c.getContext('2d').drawImage(im,0,0,c.width,c.height); res(c.toDataURL('image/jpeg',0.85).split(',')[1]); }; im.onerror=rej; im.src=src; }); }
+async function sendLive(btn){
+  const err=document.getElementById('send-err'); err.hidden=true; btn.disabled=true;
+  const sub=new Date().toISOString().slice(0,16).replace(/[-:T]/g,'')+'-'+uid();
+  const groups=[['logo',S.logo],['portrait',S.portrait],['main',S.mainImg],['hotel',S.images]].concat(S.services.map((sv,i)=>['exp'+(i+1),sv.photos||[]]));
+  const all=[]; groups.forEach(([g,l])=>(l||[]).forEach((pic,i)=>all.push({g,pic,i})));
+  try{
+    let n=0;
+    for(const x of all){ n++; btn.textContent=t('live_sending').replace('{n}',n).replace('{m}',all.length);
+      if(x.pic.fileId) continue;
+      const r=await post({action:'upload',code:CODE,sub,group:x.g,name:x.g+'-'+(x.i+1)+'.jpg',title:x.pic.title||'',text:x.pic.text||'',mime:'image/jpeg',data:await shrink(x.pic.src)});
+      if(!r.ok) throw new Error(r.error); x.pic.fileId=r.fileId; }
+    btn.textContent=t('live_finishing');
+    const strip=a=>(a||[]).map(q=>({file:q.name,fileId:q.fileId,title:q.title,text:q.text,width:q.w,height:q.h}));
+    const c=JSON.parse(JSON.stringify(S)); c.images=strip(S.images); c.portrait=strip(S.portrait); c.logo=strip(S.logo); c.mainImg=strip(S.mainImg);
+    c.services=S.services.map(sv=>({...sv,photos:strip(sv.photos)})); c.price=calc(); c.interestNames=S.pkg.interests.map(id=>{const r=INTERESTS.find(x=>x[0]===id); return r?r[1]:id;});
+    delete c.step; delete c.sent;
+    const r=await post({action:'submit',code:CODE,sub,payload:c}); if(!r.ok) throw new Error(r.error);
+    S.sent=true; save(); render(); window.scrollTo({top:0});
+  }catch(e){ err.textContent=t('live_error'); err.hidden=false; btn.disabled=false; btn.textContent=t('r_send'); }
+}
+if (LIVE) {
+  document.querySelector('.proto').hidden = true;
+  if (CODE) fetch(API_URL+'?p='+encodeURIComponent(CODE)).then(r=>r.json()).then(j=>{
+    if(!j.ok){ BOOT='badlink'; return render(); }
+    if(!hadDraft){ const lang=S.lang; S=blankState(j.partner.type); S.lang=lang; S.master=Object.assign({},j.partner); S.acc.title=j.partner.fantasy; }
+    BOOT='ready'; render();
+  }).catch(()=>{ BOOT='error'; render(); });
+}
+render();
+</script>
+
+</body>
+</html>
