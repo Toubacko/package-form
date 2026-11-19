@@ -370,6 +370,10 @@ const T = {
  r_fix:["Please complete the fields marked as missing.","Complete os campos marcados como faltando.","Bitte ergänzen Sie die als fehlend markierten Angaben.","Complétez les champs marqués comme manquants."],
  r_done:["Thank you – your package has been sent.","Obrigado – seu pacote foi enviado.","Danke – Ihr Package ist gesendet.","Merci – votre forfait a été envoyé."],
  r_done_p:["We will get back to you within a few days with the translated preview.","Retornaremos em poucos dias com a prévia traduzida.","Wir melden uns in wenigen Tagen mit der übersetzten Vorschau.","Nous revenons vers vous sous quelques jours avec l'aperçu traduit."],
+ r_more:["Do you want to register another package? Your details, contact, accommodation and conditions are kept; you start directly with the new package.","Quer cadastrar mais um pacote? Seus dados, contato, hospedagem e condições ficam salvos; você começa direto pelo novo pacote.","Möchten Sie ein weiteres Package erfassen? Ihre Stammdaten, Kontakte, Unterkunft und Bedingungen bleiben erhalten; Sie beginnen direkt beim neuen Package.","Voulez-vous enregistrer un autre forfait ? Vos données, contacts, hébergement et conditions sont conservés ; vous commencez directement par le nouveau forfait."],
+ r_again:["Register another package","Cadastrar outro pacote","Weiteres Package erfassen","Enregistrer un autre forfait"],
+ r_finish:["Finish","Concluir","Abschliessen","Terminer"],
+ r_closed:["All done. You can close this window now.","Tudo pronto. Você já pode fechar esta janela.","Alles erledigt. Sie können dieses Fenster jetzt schliessen.","C'est terminé. Vous pouvez fermer cette fenêtre."],
  r_proto:["Prototype: nothing was sent. This is the data the live form will deliver:","Protótipo: nada foi enviado. Estes são os dados que o formulário real enviará:","Prototyp: Es wurde nichts gesendet. Diese Daten liefert das echte Formular:","Prototype : rien n'a été envoyé. Voici les données que le vrai formulaire transmettra :"],
  r_photos:["photos","fotos","Bilder","photos"], r_services:["services","serviços","Leistungen","prestations"],
  mon:["Mon","Seg","Mo","Lun"],tue:["Tue","Ter","Di","Mar"],wed:["Wed","Qua","Mi","Mer"],thu:["Thu","Qui","Do","Jeu"],fri:["Fri","Sex","Fr","Ven"],sat:["Sat","Sáb","Sa","Sam"],sun:["Sun","Dom","So","Dim"],
@@ -649,10 +653,17 @@ R.review = i => { if(S.sent) return sentView();
  </div>
  ${chk('agreeTexts',t('r_agree_texts'),'c-agree1')}${chk('agreeTrue',t('r_agree_true'),'c-agree2')}
  <p class="missing" id="send-err" hidden>${esc(t('r_fix'))}</p>`; };
-function sentView(){ if(LIVE) return `<div class="done-msg"><div class="tick">✓</div><h2>${esc(t('r_done'))}</h2><p class="lede">${esc(t('r_done_p'))}</p></div>`;
+function moreBlock(){ if(S.closed) return `<div class="done-msg"><p class="lede"><b>${esc(t('r_closed'))}</b></p></div>`;
+ return `<div class="done-msg"><p class="lede">${esc(t('r_more'))}</p>
+ <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center"><button type="button" class="btn btn-primary" id="again">+ ${esc(t('r_again'))}</button><button type="button" class="btn btn-ghost" id="finish">${esc(t('r_finish'))}</button></div></div>`; }
+function newPackage(){ const b=blankState(S.master.type==='hero'?'hero':'hotel');
+ const keep=['lang','master','masterOk','about','logo','portrait','images','copyright','acc','currency','avail'];
+ keep.forEach(k=>b[k]=S[k]); ['logo','portrait','images'].forEach(k=>(b[k]||[]).forEach(q=>delete q.fileId)); b.count=(S.count||1)+1; S=b; go(STEPS.indexOf('package')); }
+function sentView(){ if(LIVE) return `<div class="done-msg"><div class="tick">✓</div><h2>${esc(t('r_done'))}</h2><p class="lede">${esc(t('r_done_p'))}</p></div>${moreBlock()}`;
  const c=JSON.parse(JSON.stringify(S)); const strip=a=>(a||[]).map(p=>({file:p.name,title:p.title,text:p.text,width:p.w,height:p.h,main:!!p.main}));
  c.images=strip(S.images); c.portrait=strip(S.portrait); c.logo=strip(S.logo); c.mainImg=strip(S.mainImg); c.services=S.services.map(s=>({...s,photos:strip(s.photos)})); c.price=calc(); delete c.step; delete c.sent;
  return `<div class="done-msg"><div class="tick">✓</div><h2>${esc(t('r_done'))}</h2><p class="lede">${esc(t('r_done_p'))}</p></div>
+ ${moreBlock()}
  ${note('r_proto',true)}<pre class="json">${esc(JSON.stringify(c,null,2))}</pre>
  <div><button type="button" class="btn btn-ghost" id="unsend">${esc(t('back'))}</button></div>`; }
 
@@ -687,6 +698,8 @@ main.addEventListener('click', e=>{ const b=e.target.closest('button'); if(!b) r
   if(b.id==='prev') return go(S.step-1);
   if(b.id==='send'){ const ok=!Object.keys(missing()).length && S.agreeTexts && S.agreeTrue; if(!ok){ document.getElementById('send-err').hidden=false; return; } if(LIVE){ sendLive(b); return; } S.sent=true; save(); render(); return; }
   if(b.id==='unsend'){ S.sent=false; render(); return; }
+  if(b.id==='again') return newPackage();
+  if(b.id==='finish'){ S.closed=true; save(); render(); return; }
   if(d.go!=null) return go(+d.go);
   if(d.int){ const a=S.pkg.interests; const v=+d.int; const i=a.indexOf(v); i<0?a.push(v):a.splice(i,1); }
   else if(b.id==='add-svc'){ S.services.push({id:uid(),type:'activity',title:'',desc:'',incl:'',price:'',status:'included',days:[...DAYS],times:[],photos:[]}); }
