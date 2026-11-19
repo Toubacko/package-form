@@ -158,6 +158,7 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--focus);outline-o
 
 .hol{display:grid;grid-template-columns:minmax(0,1fr) auto 90px;gap:8px 12px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}
 .hol .d{font-size:.8rem;color:var(--muted)}
+.crit{padding:10px 0;border-bottom:1px solid var(--line)}.crit .hol{border-bottom:0;padding:6px 0 0;grid-template-columns:auto 90px auto;justify-content:start}
 @media (max-width:640px){.hol{grid-template-columns:1fr 90px}.hol .levels{grid-column:1/-1}}
 .tiers{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
 @media (max-width:640px){.tiers{grid-template-columns:1fr}}
@@ -235,7 +236,10 @@ const T = {
  pr_st:["In the package","No pacote","Im Package","Dans le forfait"],
  pr_included:["Included","Incluído","Inbegriffen","Inclus"],pr_optional:["Optional","Opcional","Optional","En option"],pr_suggested:["Suggestion","Sugestão","Vorschlag","Suggestion"],
  a_for:["For:","Para:","Für:","Pour :"],
- a_only:["These rules apply to this package only.","Estas regras valem só para este pacote.","Diese Regeln gelten nur für dieses Package.","Ces règles s'appliquent à ce forfait uniquement."],
+ a_only:["Validity, Free Sell, weekend and cancellation apply to this package only. Critical dates apply to all your packages.","Validade, Free Sell, fim de semana e cancelamento valem só para este pacote. As datas críticas valem para todos os seus pacotes.","Gültigkeit, Free Sell, Wochenende und Stornierung gelten nur für dieses Package. Die kritischen Daten gelten für alle Ihre Packages.","Validité, Free Sell, week-end et annulation s'appliquent à ce forfait uniquement. Les dates critiques s'appliquent à tous vos forfaits."],
+ a_crit_all:["Applies to all your packages: if you change a date here, we update it everywhere.","Vale para todos os seus pacotes: se você mudar uma data aqui, atualizamos em todos.","Gilt für alle Ihre Packages: Wenn Sie hier ein Datum ändern, passen wir es überall an.","S'applique à tous vos forfaits : si vous modifiez une date ici, nous la mettons à jour partout."],
+ a_cancel_pkg:["Only for this package – e.g. a package around a festival or event non-refundable, a romantic weekend with short notice.","Só para este pacote – por exemplo, um pacote ligado a uma festa ou evento não reembolsável, um fim de semana romântico com prazo curto.","Nur für dieses Package – z. B. ein Package zu einem Fest oder Event nicht erstattbar, ein romantisches Wochenende kurzfristig.","Uniquement pour ce forfait – par ex. un forfait autour d'une fête ou d'un événement non remboursable, un week-end romantique à court terme."],
+ a_nonref:["Non-refundable (100 % from booking)","Não reembolsável (100 % desde a reserva)","Nicht erstattbar (100 % ab Buchung)","Non remboursable (100 % dès la réservation)"],
  welcome_h:["Before you start","Antes de começar","Bevor Sie beginnen","Avant de commencer"],
  live_loading:["Loading your details …","Carregando seus dados …","Ihre Stammdaten werden geladen …","Chargement de vos données …"],
  live_badlink:["This link is not valid. Please use the personal link we sent you, or write to partners@toubacko.com.","Este link não é válido. Use o link pessoal que enviamos ou escreva para partners@toubacko.com.","Dieser Link ist ungültig. Bitte verwenden Sie den persönlichen Link, den wir Ihnen geschickt haben, oder schreiben Sie an partners@toubacko.com.","Ce lien n'est pas valide. Utilisez le lien personnel que nous vous avons envoyé ou écrivez à partners@toubacko.com."],
@@ -354,9 +358,11 @@ const T = {
  a_rooms_hint:["As long as you are not fully booked in the period, we sell these rooms without asking you first. You can stop free sell at any time. 0 = every booking is a request that you confirm first.","Enquanto você não estiver lotado no período, vendemos esses quartos sem consultar antes. Você pode suspender o free sale a qualquer momento. 0 = cada reserva é um pedido que você confirma antes.","Solange Sie im Zeitraum nicht ausgebucht sind, verkaufen wir diese Zimmer ohne Rückfrage. Sie können Free Sell jederzeit stoppen. 0 = jede Buchung ist eine Anfrage, die Sie zuerst bestätigen.","Tant que vous n'êtes pas complet sur la période, nous vendons ces chambres sans vous demander. Vous pouvez arrêter le free sale à tout moment. 0 = chaque réservation est une demande que vous confirmez d'abord."],
  a_weekend:["Weekends (Fri–Sat nights)","Fins de semana (noites de sex–sáb)","Wochenende (Nächte Fr–Sa)","Week-ends (nuits ven–sam)"],
  a_same:["Same price","Mesmo preço","Gleicher Preis","Même prix"], a_more:["More expensive by %","Mais caro em %","Teurer um %","Plus cher de %"], a_less:["Cheaper by %","Mais barato em %","Günstiger um %","Moins cher de %"],
- a_holidays:["Holidays and high season","Feriados e alta temporada","Feiertage und Hochsaison","Jours fériés et haute saison"],
- a_hol_hint:["Suggested for your country. For each: normal, surcharge, or not bookable.","Sugeridos para seu país. Para cada um: normal, acréscimo ou indisponível.","Vorgeschlagen für Ihr Land. Pro Termin: normal, Zuschlag oder nicht buchbar.","Proposés pour votre pays. Pour chacun : normal, supplément ou non réservable."],
+ a_holidays:["Critical dates: holidays and high season","Datas críticas: feriados e alta temporada","Kritische Daten: Feiertage und Hochsaison","Dates critiques : jours fériés et haute saison"],
+ a_hol_hint:["Suggested for your country. Adjust the dates, remove what does not apply or add your own. For each: normal, surcharge or not bookable.","Sugeridos para o seu país. Ajuste as datas, remova o que não se aplica ou acrescente as suas. Para cada uma: normal, acréscimo ou indisponível.","Vorgeschlagen für Ihr Land. Passen Sie die Daten an, entfernen Sie, was nicht zutrifft, oder fügen Sie eigene hinzu. Pro Termin: normal, Zuschlag oder nicht buchbar.","Proposées pour votre pays. Ajustez les dates, supprimez ce qui ne s'applique pas ou ajoutez les vôtres. Pour chacune : normal, supplément ou non réservable."],
  a_normal:["Normal","Normal","Normal","Normal"], a_surch:["Surcharge %","Acréscimo %","Zuschlag %","Supplément %"], a_closed:["Not bookable","Indisponível","Nicht buchbar","Non réservable"],
+ a_crit_name:["Name","Nome","Bezeichnung","Nom"],
+ a_crit_add:["Add critical date","Adicionar data crítica","Kritisches Datum hinzufügen","Ajouter une date critique"],
  a_black:["Other dates when you are not bookable","Outras datas em que você não está disponível","Weitere Daten, an denen Sie nicht buchbar sind","Autres dates où vous n'êtes pas réservable"],
  a_black_add:["Add period","Adicionar período","Zeitraum hinzufügen","Ajouter une période"],
  a_cancel:["Cancellation (days before arrival)","Cancelamento (dias antes da chegada)","Stornierung (Tage vor Anreise)","Annulation (jours avant l'arrivée)"],
@@ -370,7 +376,8 @@ const T = {
  r_fix:["Please complete the fields marked as missing.","Complete os campos marcados como faltando.","Bitte ergänzen Sie die als fehlend markierten Angaben.","Complétez les champs marqués comme manquants."],
  r_done:["Thank you – your package has been sent.","Obrigado – seu pacote foi enviado.","Danke – Ihr Package ist gesendet.","Merci – votre forfait a été envoyé."],
  r_done_p:["We will get back to you within a few days with the translated preview.","Retornaremos em poucos dias com a prévia traduzida.","Wir melden uns in wenigen Tagen mit der übersetzten Vorschau.","Nous revenons vers vous sous quelques jours avec l'aperçu traduit."],
- r_more:["Do you want to register another package? Your details, contact, accommodation and conditions are kept; you start directly with the new package.","Quer cadastrar mais um pacote? Seus dados, contato, hospedagem e condições ficam salvos; você começa direto pelo novo pacote.","Möchten Sie ein weiteres Package erfassen? Ihre Stammdaten, Kontakte, Unterkunft und Bedingungen bleiben erhalten; Sie beginnen direkt beim neuen Package.","Voulez-vous enregistrer un autre forfait ? Vos données, contacts, hébergement et conditions sont conservés ; vous commencez directement par le nouveau forfait."],
+ r_more:["Do you want to register another package? Your details, contacts, accommodation, experiences, perks and conditions are kept; you start directly with the new package.","Quer cadastrar mais um pacote? Seus dados, contatos, hospedagem, experiências, mimos e condições ficam salvos; você começa direto pelo novo pacote.","Möchten Sie ein weiteres Package erfassen? Ihre Stammdaten, Kontakte, Unterkunft, Erlebnisse, Perks und Bedingungen bleiben erhalten; Sie beginnen direkt beim neuen Package.","Voulez-vous enregistrer un autre forfait ? Vos données, contacts, hébergement, expériences, avantages et conditions sont conservés ; vous commencez directement par le nouveau forfait."],
+ s_prev:["From your previous package – keep it, adjust it or remove it.","Do seu pacote anterior – mantenha, ajuste ou remova.","Aus Ihrem vorherigen Package – übernehmen, anpassen oder entfernen.","De votre forfait précédent – à garder, adapter ou supprimer."],
  r_again:["Register another package","Cadastrar outro pacote","Weiteres Package erfassen","Enregistrer un autre forfait"],
  r_finish:["Finish","Concluir","Abschliessen","Terminer"],
  r_closed:["All done. You can close this window now.","Tudo pronto. Você já pode fechar esta janela.","Alles erledigt. Sie können dieses Fenster jetzt schliessen.","C'est terminé. Vous pouvez fermer cette fenêtre."],
@@ -558,6 +565,7 @@ R.services = i => `${head(i,'services','s_lede')}
  <div><button type="button" class="btn btn-ghost" id="add-svc">+ ${esc(t('s_add'))}</button></div>`;
 function svcCard(s,n){ const p='services.'+n;
  return `<div class="item"><div class="item-head"><h3>${n+1}. ${esc(s.title||o('stype',s.type))}</h3><span class="badge">${esc(o('stype',s.type))}</span></div>
+ ${s.prev?`<span class="hint">${esc(t('s_prev'))}</span>`:''}
  <div class="grid">${sel(p+'.type',t('s_type'),'stype')}${inp(p+'.title',t('s_name'),{req:true})}
   ${inp(p+'.desc',t('s_desc'),{rows:3,full:true})}${inp(p+'.incl',t('s_incl'),{rows:2,full:true,hint:t('s_incl_hint')})}
   <div class="field full"><label for="f-${p.replace('.','-')}-status">${esc(t('s_status'))}</label><select id="f-${p.replace('.','-')}-status" data-k="${p}.status" data-rerender="1">${['included','suggested','optional'].map(k=>`<option value="${k}" ${s.status===k?'selected':''}>${esc(t('s_'+k))}</option>`).join('')}</select></div>
@@ -608,23 +616,29 @@ R.price = i => { const c=calc();
   <tr><td>${esc(t('c_one'))}</td><td>${money(c.one)}</td></tr>
  </tbody></table></div>${note('c_commission')}`; };
 
-R.avail = i => { const hol=HOL[S.master.country]||HOL.XX; const a=S.avail;
+function critInit(){ const a=S.avail; if(Array.isArray(a.crit)) return; const hol=HOL[S.master.country]||HOL.XX;
+ a.crit=hol.map(([n,f,to],k)=>{ const v=(a.hol||{})[k]||{}; return {n,from:f,to,m:v.m||'normal',pct:v.pct||''}; }); delete a.hol; }
+R.avail = i => { critInit(); const a=S.avail;
  return `${head(i,'avail','a_lede')}
  <div class="note"><span><b>${esc(t('a_for'))} ${esc(S.pkg.title||'–')}</b><br>${esc(t('a_only'))}</span></div>
  <fieldset><div class="grid three">${inp('avail.from',t('a_from'),{type:'date'})}${inp('avail.to',t('a_to'),{type:'date'})}${inp('avail.rooms',t('a_rooms'),{type:'number',hint:t('a_rooms_hint')})}</div></fieldset>
  <fieldset><legend>${esc(t('a_weekend'))}</legend><div class="grid three">
   <div class="field"><label for="f-avail-weekend">${esc(t('a_weekend'))}</label><select id="f-avail-weekend" data-k="avail.weekend" data-rerender="1">${['same','more','less'].map(k=>`<option value="${k}" ${a.weekend===k?'selected':''}>${esc(t('a_'+k))}</option>`).join('')}</select></div>
   ${a.weekend!=='same'?inp('avail.weekendPct','%',{type:'number'}):''}</div></fieldset>
- <fieldset><legend>${esc(t('a_holidays'))}</legend><span class="hint">${esc(t('a_hol_hint'))}</span>
-  ${hol.map(([n,f,to],k)=>{ const v=a.hol[k]||{m:'normal'}; const fmt=d=>new Date(d+'T12:00:00').toLocaleDateString(S.lang==='pt'?'pt-BR':S.lang,{day:'numeric',month:'short',year:'numeric'});
-   return `<div class="hol"><span>${esc(n)}<br><span class="d">${fmt(f)}${f!==to?' – '+fmt(to):''}</span></span>
-   <span class="levels" role="group" aria-label="${esc(n)}">${['normal','surch','closed'].map(m=>`<button type="button" class="${m==='normal'?'l-none':m==='surch'?'l-premium':'l-basic'}" data-hol="${k}" data-m="${m}" aria-pressed="${v.m===m}">${esc(t('a_'+m))}</button>`).join('')}</span>
-   ${v.m==='surch'?`<input type="number" id="f-hol-${k}" aria-label="%" data-k="avail.hol.${k}.pct" value="${esc(v.pct)}" placeholder="%">`:'<span></span>'}</div>`; }).join('')}
+ <fieldset><legend>${esc(t('a_holidays'))}</legend><span class="hint">${esc(t('a_hol_hint'))}</span><span class="hint"><b>${esc(t('a_crit_all'))}</b></span>
+  ${a.crit.map((c,k)=>`<div class="crit">
+   <div class="grid three" style="align-items:end">${inp(`avail.crit.${k}.n`,t('a_crit_name'))}${inp(`avail.crit.${k}.from`,t('a_from'),{type:'date'})}${inp(`avail.crit.${k}.to`,t('a_to'),{type:'date'})}</div>
+   <div class="hol"><span class="levels" role="group" aria-label="${esc(c.n)}">${['normal','surch','closed'].map(m=>`<button type="button" class="${m==='normal'?'l-none':m==='surch'?'l-premium':'l-basic'}" data-crit="${k}" data-m="${m}" aria-pressed="${c.m===m}">${esc(t('a_'+m))}</button>`).join('')}</span>
+   ${c.m==='surch'?`<input type="number" id="f-crit-${k}" aria-label="%" data-k="avail.crit.${k}.pct" value="${esc(c.pct)}" placeholder="%">`:'<span></span>'}
+   <button type="button" class="btn-link" data-rmcrit="${k}">${esc(t('i_remove'))}</button></div></div>`).join('')}
+  <div><button type="button" class="btn btn-ghost btn-small" id="add-crit">+ ${esc(t('a_crit_add'))}</button></div>
  </fieldset>
  <fieldset><legend>${esc(t('a_black'))}</legend>
   ${a.black.map((b,k)=>`<div class="grid three" style="align-items:end">${inp(`avail.black.${k}.from`,t('a_from'),{type:'date'})}${inp(`avail.black.${k}.to`,t('a_to'),{type:'date'})}<div><button type="button" class="btn-link" data-rmblack="${k}">${esc(t('i_remove'))}</button></div></div>`).join('')}
   <div><button type="button" class="btn btn-ghost btn-small" id="add-black">+ ${esc(t('a_black_add'))}</button></div></fieldset>
- <fieldset><legend>${esc(t('a_cancel'))}</legend><div class="tiers">
+ <fieldset><legend>${esc(t('a_cancel'))}</legend><span class="hint">${esc(t('a_cancel_pkg'))}</span>
+  ${chk('avail.nonref',t('a_nonref'),'c-nonref')}
+  <div class="tiers" ${a.nonref?'style="display:none"':''}>
   <div class="tier">${esc(t('a_free_until'))} <input type="number" aria-label="${esc(t('a_days'))}" id="f-c1" data-k="avail.c1" value="${esc(a.c1)}"> ${esc(t('a_days_before'))}</div>
   <div class="tier"><input type="number" aria-label="%" id="f-c2p" data-k="avail.c2p" value="${esc(a.c2p)}"> % ${esc(t('a_from_days'))} <input type="number" aria-label="${esc(t('a_days'))}" id="f-c2" data-k="avail.c2" value="${esc(a.c2)}"> ${esc(t('a_days'))}</div>
   <div class="tier"><input type="number" aria-label="%" id="f-c3p" data-k="avail.c3p" value="${esc(a.c3p)}"> % ${esc(t('a_from_days'))} <input type="number" aria-label="${esc(t('a_days'))}" id="f-c3" data-k="avail.c3" value="${esc(a.c3)}"> ${esc(t('a_days'))}</div>
@@ -649,7 +663,7 @@ R.review = i => { if(S.sent) return sentView();
  ${blk('acc',[[t('acc_name'),S.acc.title],[t('acc_photos'),S.images.length+' '+t('r_photos')]])}
  ${blk('services',[[t('st_services'),S.services.length+(S.services.length?': '+S.services.map(s=>s.title||o('stype',s.type)).join(', '):'')]])}
  ${blk('price',[[t('c_two'),money(c.two)],[t('c_pp'),money(c.two/2)]])}
- ${blk('avail',[[t('a_from')+' – '+t('a_to'),S.avail.from+' – '+S.avail.to],[t('a_cancel'),`${S.avail.c1} / ${S.avail.c2p}% ${S.avail.c2} / ${S.avail.c3p}% ${S.avail.c3}`]])}
+ ${blk('avail',[[t('a_from')+' – '+t('a_to'),S.avail.from+' – '+S.avail.to],[t('a_cancel'),S.avail.nonref?t('a_nonref'):`${S.avail.c1} / ${S.avail.c2p}% ${S.avail.c2} / ${S.avail.c3p}% ${S.avail.c3}`]])}
  </div>
  ${chk('agreeTexts',t('r_agree_texts'),'c-agree1')}${chk('agreeTrue',t('r_agree_true'),'c-agree2')}
  <p class="missing" id="send-err" hidden>${esc(t('r_fix'))}</p>`; };
@@ -657,8 +671,9 @@ function moreBlock(){ if(S.closed) return `<div class="done-msg"><p class="lede"
  return `<div class="done-msg"><p class="lede">${esc(t('r_more'))}</p>
  <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center"><button type="button" class="btn btn-primary" id="again">+ ${esc(t('r_again'))}</button><button type="button" class="btn btn-ghost" id="finish">${esc(t('r_finish'))}</button></div></div>`; }
 function newPackage(){ const b=blankState(S.master.type==='hero'?'hero':'hotel');
- const keep=['lang','master','masterOk','about','logo','portrait','images','copyright','acc','currency','avail'];
- keep.forEach(k=>b[k]=S[k]); ['logo','portrait','images'].forEach(k=>(b[k]||[]).forEach(q=>delete q.fileId)); b.count=(S.count||1)+1; S=b; go(STEPS.indexOf('package')); }
+ const keep=['lang','master','masterOk','about','logo','portrait','images','copyright','acc','currency','avail','perks'];
+ keep.forEach(k=>b[k]=S[k]); ['logo','portrait','images'].forEach(k=>(b[k]||[]).forEach(q=>delete q.fileId));
+ b.services=S.services.map(sv=>({...sv,prev:true,photos:(sv.photos||[]).map(q=>{const c={...q}; delete c.fileId; return c;})})); b.count=(S.count||1)+1; S=b; go(STEPS.indexOf('package')); }
 function sentView(){ if(LIVE) return `<div class="done-msg"><div class="tick">✓</div><h2>${esc(t('r_done'))}</h2><p class="lede">${esc(t('r_done_p'))}</p></div>${moreBlock()}`;
  const c=JSON.parse(JSON.stringify(S)); const strip=a=>(a||[]).map(p=>({file:p.name,title:p.title,text:p.text,width:p.w,height:p.h,main:!!p.main}));
  c.images=strip(S.images); c.portrait=strip(S.portrait); c.logo=strip(S.logo); c.mainImg=strip(S.mainImg); c.services=S.services.map(s=>({...s,photos:strip(s.photos)})); c.price=calc(); delete c.step; delete c.sent;
@@ -688,7 +703,7 @@ main.addEventListener('input', e=>{ const el=e.target, k=el.dataset.k; if(!k) re
   let v = el.type==='checkbox' ? el.checked : el.value; if(el.dataset.num) v=+v; setP(k,v);
   const pm=k.match(/^program\.(\d+)\.(\d+)\.svc$/); if(pm&&v&&v!=='acc'){ const sv=S.services.find(x=>x.id===v); if(sv) S.program[pm[1]][+pm[2]].st=sv.status; }
   if(el.dataset.max){ const c=main.querySelector(`[data-count="${el.id}"]`); if(c){ c.textContent=`${el.value.length} / ${el.dataset.max}`; c.classList.toggle('over', el.value.length>+el.dataset.max); } }
-  if(el.dataset.rerender || el.tagName==='SELECT' && /\.type$|^currency$|cc\.role$/.test(k)) render();
+  if(el.dataset.rerender || k==='avail.nonref' || el.tagName==='SELECT' && /\.type$|^currency$|cc\.role$/.test(k)) render();
   if(el.type==='number' && STEPS[S.step]==='price') render();
   save(); });
 main.addEventListener('change', e=>{ const el=e.target;
@@ -709,7 +724,9 @@ main.addEventListener('click', e=>{ const b=e.target.closest('button'); if(!b) r
   else if(d.addrow){ (S.program[d.addrow]=S.program[d.addrow]||[]).push({slot:'morning',svc:'',free:'',time:'',st:'included'}); }
   else if(d.rmrow){ S.program[d.rmrow].splice(+d.i,1); }
   else if(d.perk){ S.perks[d.perk]=Object.assign(S.perks[d.perk]||{}, {lvl:d.l}); }
-  else if(d.hol!=null){ S.avail.hol[d.hol]=Object.assign(S.avail.hol[d.hol]||{}, {m:d.m}); }
+  else if(d.crit!=null){ S.avail.crit[+d.crit].m=d.m; }
+  else if(d.rmcrit!=null){ S.avail.crit.splice(+d.rmcrit,1); }
+  else if(b.id==='add-crit'){ S.avail.crit.push({n:'',from:'',to:'',m:'surch',pct:''}); }
   else if(b.id==='add-black'){ S.avail.black.push({from:'',to:''}); }
   else if(d.rmblack!=null){ S.avail.black.splice(+d.rmblack,1); }
   else if(d.rmpic){ getP(d.rmpic).splice(+d.i,1); }
