@@ -232,6 +232,7 @@ const T = {
  s_times:["Time of day","Período do dia","Tageszeit","Moment de la journée"],
  tod_morning:["Morning","Manhã","morgens","Le matin"],tod_midday:["Midday","Meio-dia","mittags","À midi"],tod_afternoon:["Afternoon","Tarde","nachmittags","L'après-midi"],tod_evening:["Evening","Noite","abends","Le soir"],tod_fullday:["Full day","Dia inteiro","ganztags","Toute la journée"],
  s_cost:["Internal cost per person","Custo interno por pessoa","Interne Kosten pro Person","Coût interne par personne"],
+ s_cost_veh:["Internal cost per vehicle (whole transfer)","Custo interno por veículo (transfer completo)","Interne Kosten pro Fahrzeug (ganzer Transfer)","Coût interne par véhicule (transfert complet)"],
  s_cost_hint:["Not visible to the guest.","Não aparece para o hóspede.","Für den Kunden nicht sichtbar.","Non visible pour le voyageur."],
  pr_st:["In the package","No pacote","Im Package","Dans le forfait"],
  pr_included:["Included","Incluído","Inbegriffen","Inclus"],pr_optional:["Optional","Opcional","Optional","En option"],pr_suggested:["Suggestion","Sugestão","Vorschlag","Suggestion"],
@@ -348,6 +349,7 @@ const T = {
  c_room:["Room for the whole stay","Quarto para toda a estadia","Zimmer für den ganzen Aufenthalt","Chambre pour tout le séjour"],
  c_svc:["Services included, per person","Serviços incluídos, por pessoa","Inbegriffene Leistungen pro Person","Prestations incluses, par personne"],
  c_two:["Package for 2 people in a double room","Pacote para 2 pessoas em quarto duplo","Package für 2 Personen im Doppelzimmer","Forfait pour 2 personnes en chambre double"],
+ c_veh:["Transfers, per vehicle","Transfers, por veículo","Transfers pro Fahrzeug","Transferts, par véhicule"],
  c_pp:["That is per person","Ou seja, por pessoa","Das sind pro Person","Soit par personne"],
  c_one:["For 1 person (room for one)","Para 1 pessoa (quarto individual)","Für 1 Person (Einzelbelegung)","Pour 1 personne (chambre seule)"],
  c_nosvc:["Prices come from steps 4 and 5.","Os preços vêm dos passos 4 e 5.","Die Preise kommen aus den Schritten 4 und 5.","Les prix proviennent des étapes 4 et 5."],
@@ -569,7 +571,7 @@ function svcCard(s,n){ const p='services.'+n;
  <div class="grid">${sel(p+'.type',t('s_type'),'stype')}${inp(p+'.title',t('s_name'),{req:true})}
   ${inp(p+'.desc',t('s_desc'),{rows:3,full:true})}${inp(p+'.incl',t('s_incl'),{rows:2,full:true,hint:t('s_incl_hint')})}
   <div class="field full"><label for="f-${p.replace('.','-')}-status">${esc(t('s_status'))}</label><select id="f-${p.replace('.','-')}-status" data-k="${p}.status" data-rerender="1">${['included','suggested','optional'].map(k=>`<option value="${k}" ${s.status===k?'selected':''}>${esc(t('s_'+k))}</option>`).join('')}</select></div>
-  ${s.status==='included'?inp(p+'.price',t('s_cost')+' ('+S.currency+')',{type:'number',hint:t('s_cost_hint')}):''}
+  ${s.status==='included'?inp(p+'.price',t(s.type==='transfer'?'s_cost_veh':'s_cost')+' ('+S.currency+')',{type:'number',hint:t('s_cost_hint')}):''}
  </div>
  <div class="field"><span class="lbl">${esc(t('s_days'))}</span><div class="chips">${DAYS.map(d=>`<button type="button" class="chip" data-svcday="${n}" data-d="${d}" aria-pressed="${s.days.includes(d)}">${esc(t(d))}</button>`).join('')}</div></div>
  <div class="field"><span class="lbl">${esc(t('s_times'))}</span><div class="chips">${['morning','midday','afternoon','evening','fullday'].map(d=>`<button type="button" class="chip" data-svctime="${n}" data-d="${d}" aria-pressed="${(s.times||[]).includes(d)}">${esc(t('tod_'+d))}</button>`).join('')}</div></div>
@@ -600,8 +602,10 @@ R.perks = i => { if(isHero()) return `${head(i,'perks')}${note('pk_lh')}`;
   ${v.lvl==='premium'||v.lvl==='smart'?`<div class="extra">${inp(`perks.${k}.normal`,t('pk_normal'),{type:'number'})}${inp(`perks.${k}.inpkg`,t('pk_inpkg'),{type:'number'})}${v.lvl==='smart'?inp(`perks.${k}.when`,t('pk_when')):inp(`perks.${k}.note`,t('pk_note'))}</div>`:''}</div>`; }).join('')}</div>`).join('')}`; };
 
 function calc(){ const acc=+S.acc.price||0;
- const pp=S.services.filter(s=>s.status==='included').reduce((a,s)=>a+(+s.price||0),0);
- return {acc,pp,two:acc+2*pp,one:acc+pp}; }
+ const inc=S.services.filter(s=>s.status==='included');
+ const pp=inc.filter(s=>s.type!=='transfer').reduce((a,s)=>a+(+s.price||0),0);
+ const veh=inc.filter(s=>s.type==='transfer').reduce((a,s)=>a+(+s.price||0),0);
+ return {acc,pp,veh,two:acc+2*pp+veh,one:acc+pp+veh}; }
 const money = v => new Intl.NumberFormat(S.lang==='pt'?'pt-BR':S.lang==='de'?'de-CH':S.lang==='fr'?'fr-FR':'en-GB',{style:'currency',currency:S.currency,maximumFractionDigits:0}).format(v||0);
 R.price = i => { const c=calc();
  return `${head(i,'price','c_lede')}
@@ -610,7 +614,8 @@ R.price = i => { const c=calc();
  <div class="sum table-x"><table><tbody>
   <tr><td>${esc(t('c_room'))}</td><td>${money(c.acc)}</td></tr>
   <tr><td>${esc(t('c_svc'))}</td><td>${money(c.pp)}</td></tr>
-  ${S.services.filter(s=>s.status==='included').map(s=>`<tr><td style="padding-left:28px;color:var(--muted)">${esc(s.title||o('stype',s.type))}</td><td style="color:var(--muted)">${money(+s.price||0)}</td></tr>`).join('')}
+  ${S.services.filter(s=>s.status==='included'&&s.type!=='transfer').map(s=>`<tr><td style="padding-left:28px;color:var(--muted)">${esc(s.title||o('stype',s.type))}</td><td style="color:var(--muted)">${money(+s.price||0)}</td></tr>`).join('')}
+  ${c.veh?`<tr><td>${esc(t('c_veh'))}</td><td>${money(c.veh)}</td></tr>`+S.services.filter(s=>s.status==='included'&&s.type==='transfer').map(s=>`<tr><td style="padding-left:28px;color:var(--muted)">${esc(s.title||o('stype',s.type))}</td><td style="color:var(--muted)">${money(+s.price||0)}</td></tr>`).join(''):''}
   <tr class="total"><td>${esc(t('c_two'))}</td><td>${money(c.two)}</td></tr>
   <tr><td>${esc(t('c_pp'))}</td><td>${money(c.two/2)}</td></tr>
   <tr><td>${esc(t('c_one'))}</td><td>${money(c.one)}</td></tr>
@@ -667,7 +672,8 @@ R.review = i => { if(S.sent) return sentView();
  </div>
  ${chk('agreeTexts',t('r_agree_texts'),'c-agree1')}${chk('agreeTrue',t('r_agree_true'),'c-agree2')}
  <p class="missing" id="send-err" hidden>${esc(t('r_fix'))}</p>`; };
-function moreBlock(){ if(S.closed) return `<div class="done-msg"><p class="lede"><b>${esc(t('r_closed'))}</b></p></div>`;
+function moreBlock(){ if(S.closed) return `<div class="done-msg"><p class="lede"><b>${esc(t('r_closed'))}</b></p>
+ <p class="lede">${esc(t('r_more'))}</p><div style="display:flex;justify-content:center"><button type="button" class="btn btn-ghost" id="again">+ ${esc(t('r_again'))}</button></div></div>`;
  return `<div class="done-msg"><p class="lede">${esc(t('r_more'))}</p>
  <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center"><button type="button" class="btn btn-primary" id="again">+ ${esc(t('r_again'))}</button><button type="button" class="btn btn-ghost" id="finish">${esc(t('r_finish'))}</button></div></div>`; }
 function newPackage(){ const b=blankState(S.master.type==='hero'?'hero':'hotel');
