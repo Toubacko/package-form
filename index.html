@@ -133,8 +133,10 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--focus);outline-o
 
 .days{display:flex;flex-direction:column;gap:14px}
 .day h3{font-size:.95rem;margin-bottom:8px}
-.row{display:grid;grid-template-columns:140px minmax(0,1fr) 140px 100px 34px;gap:8px;align-items:start}
-@media (max-width:640px){.row{grid-template-columns:1fr 1fr}.row .wide{grid-column:1/-1}}
+.row{display:grid;grid-template-columns:54px 130px minmax(0,1fr) 130px 96px 34px;gap:8px;align-items:start;border-radius:8px}
+.mover{display:flex;align-items:center;gap:2px;padding-top:8px}.mover .grip{cursor:grab;color:var(--muted);width:12px}.mover .btn-link{padding:0 2px;font-size:.75rem}.mover .btn-link:disabled{opacity:.25;cursor:default}
+.row.dragging{opacity:.4}.row.dropto{outline:2px dashed var(--accent,#2b8bd6);outline-offset:2px}
+@media (max-width:640px){.row{grid-template-columns:1fr 1fr}.row .wide{grid-column:1/-1}.row .mover{grid-column:1/-1;padding-top:0}}
 .row + .row{margin-top:8px}
 
 .perkgroup{display:flex;flex-direction:column;gap:6px}
@@ -316,6 +318,7 @@ const T = {
  s_type:["Type","Tipo","Art","Type"], s_name:["Name of the experience","Nome da experiência","Name des Erlebnisses","Nom de l'expérience"],
  s_desc:["Description for the guest","Descrição para o hóspede","Beschreibung für den Gast","Description pour le voyageur"],
  s_incl:["What exactly is included?","O que exatamente está incluído?","Was genau ist inbegriffen?","Qu'est-ce qui est inclus exactement ?"],
+ s_status_hint:["Museums, markets, parks and sights the guest visits alone = Suggestion. Guided excursions your reception can book = Optional. Included = only what you provide yourself (room, meals, transfers, spa …).","Museus, mercados, parques e pontos turísticos que o hóspede visita sozinho = Sugestão. Passeios guiados que sua recepção pode reservar = Opcional. Incluído = só o que você mesmo oferece (quarto, refeições, transfers, spa …).","Museen, Märkte, Parks und Sehenswürdigkeiten, die der Gast selbst besucht = Vorschlag. Geführte Ausflüge, die Ihre Rezeption buchen kann = Option. Inbegriffen = nur, was Sie selbst leisten (Zimmer, Mahlzeiten, Transfers, Spa …).","Musées, marchés, parcs et sites que le voyageur visite seul = Suggestion. Excursions guidées réservables à votre réception = En option. Inclus = uniquement ce que vous fournissez vous-même (chambre, repas, transferts, spa …)."],
  s_incl_hint:["Meals, drinks, entrance fees, equipment …","Refeições, bebidas, ingressos, equipamento …","Mahlzeiten, Getränke, Eintritte, Ausrüstung …","Repas, boissons, entrées, équipement …"],
  s_days:["Available on","Disponível em","Verfügbar an","Disponible le"],
  s_status:["Type of offer","Tipo de oferta","Art des Angebots","Type d'offre"],
@@ -331,6 +334,9 @@ const T = {
  s_remove:["Remove experience","Remover experiência","Erlebnis entfernen","Supprimer l'expérience"],
  s_need_acc:["Add your accommodation as the first service.","Adicione a hospedagem como primeiro serviço.","Erfassen Sie Ihre Unterkunft als erste Leistung.","Ajoutez l'hébergement comme première prestation."],
  pr_lede:["Place your experiences on the days. Empty slots are fine: free time is part of the journey.","Distribua as experiências pelos dias. Horários vazios estão ok: tempo livre faz parte da viagem.","Verteilen Sie Ihre Erlebnisse auf die Tage. Leere Zeiten sind in Ordnung: freie Zeit gehört zur Reise.","Placez vos expériences sur les jours. Les créneaux vides sont normaux : le temps libre fait partie du voyage."],
+ pr_bf:["Breakfast","Café da manhã","Frühstück","Petit-déjeuner"], pr_night:["Overnight","Pernoite","Übernachtung","Nuitée"],
+ pr_order:["Breakfast starts each day and the overnight closes it – both are set for you. Use ▲ ▼ or drag ⠿ to change the order, e.g. a birdwatching tour before breakfast.","O café da manhã abre cada dia e o pernoite fecha – ambos já estão definidos. Use ▲ ▼ ou arraste ⠿ para mudar a ordem, por exemplo um birdwatching antes do café.","Das Frühstück eröffnet jeden Tag, die Übernachtung schliesst ihn ab – beides ist schon gesetzt. Mit ▲ ▼ oder durch Ziehen ⠿ ändern Sie die Reihenfolge, z. B. eine Vogelbeobachtung vor dem Frühstück.","Le petit-déjeuner ouvre chaque journée et la nuitée la clôt – les deux sont déjà en place. Utilisez ▲ ▼ ou faites glisser ⠿ pour changer l'ordre, par exemple une sortie ornithologique avant le petit-déjeuner."],
+ pr_up:["Move up","Subir","Nach oben","Monter"], pr_down:["Move down","Descer","Nach unten","Descendre"],
  pr_day:["Day","Dia","Tag","Jour"], pr_add:["Add to this day","Adicionar a este dia","Zu diesem Tag hinzufügen","Ajouter à ce jour"],
  pr_slot:["Time of day","Período","Tageszeit","Moment"], pr_what:["Service","Serviço","Leistung","Prestation"], pr_time:["Time","Hora","Uhrzeit","Heure"],
  pr_note:["Tip from you (optional)","Dica sua (opcional)","Ihr Tipp (optional)","Votre conseil (facultatif)"],
@@ -389,7 +395,7 @@ const T = {
  yes:["Yes","Sim","Ja","Oui"]
 };
 const OPT = {
- stype:{activity:["Experience / activity","Experiência / atividade","Erlebnis / Aktivität","Expérience / activité"],cityintro:["City intro / guided walk","Apresentação da cidade / passeio guiado","Stadtführung","Découverte de la ville"],eating:["Meal / food experience","Refeição / experiência gastronômica","Essen / Food-Erlebnis","Repas / expérience culinaire"],transfer:["Transfer","Transfer","Transfer","Transfert"],party:["Party / nightlife","Festa / vida noturna","Party / Nachtleben","Fête / vie nocturne"],gift:["Gift","Presente","Geschenk","Cadeau"],extras:["Other extra","Outro extra","Weiteres Extra","Autre extra"]},
+ stype:{activity:["Experience / activity","Experiência / atividade","Erlebnis / Aktivität","Expérience / activité"],guided:["Guided tour / city walk","Passeio guiado / city tour","Führung / Stadtrundgang","Visite guidée / balade en ville"],eating:["Meal / food experience","Refeição / experiência gastronômica","Essen / Food-Erlebnis","Repas / expérience culinaire"],transfer:["Transfer","Transfer","Transfer","Transfert"],party:["Party / nightlife","Festa / vida noturna","Party / Nachtleben","Fête / vie nocturne"],gift:["Gift","Presente","Geschenk","Cadeau"],extras:["Other extra","Outro extra","Weiteres Extra","Autre extra"]},
  style:{comfort:["Comfort","Conforto","Komfort","Confort"],upscale:["Upscale","Superior","Gehoben","Haut de gamme"],highend:["High end","Luxo","High End","Luxe"]},
  group:{g1:["1–10 people","1–10 pessoas","1–10 Personen","1–10 personnes"],g2:["11–44","11–44","11–44","11–44"],g3:["45–100","45–100","45–100","45–100"],g4:["over 100","mais de 100","über 100","plus de 100"]},
  board:{ro:["Room only","Só hospedagem","Nur Zimmer","Chambre seule"],bb:["Breakfast","Café da manhã","Frühstück","Petit-déjeuner"],hb:["Half board","Meia pensão","Halbpension","Demi-pension"],fb:["Full board","Pensão completa","Vollpension","Pension complète"],ai:["All inclusive","All inclusive","All inclusive","Tout compris"]},
@@ -461,7 +467,7 @@ function blankState(kind){
 let kind = 'hotel';
 let S = blankState(kind);
 const KEY = LIVE ? 'tbk-pkgform-' + CODE.toUpperCase() : 'tbk-pkgform-proto-v3';
-try { const raw = localStorage.getItem(KEY); if (raw) { const o = JSON.parse(raw); if (o && o.master) { hadDraft = true; S = Object.assign(blankState(o.master.type==='hero'?'hero':'hotel'), o); kind = S.master.type==='hero'?'hero':'hotel'; } } } catch(e) {}
+try { const raw = localStorage.getItem(KEY); if (raw) { const o = JSON.parse(raw); if (o && o.master) { hadDraft = true; S = Object.assign(blankState(o.master.type==='hero'?'hero':'hotel'), o); kind = S.master.type==='hero'?'hero':'hotel'; (S.services||[]).forEach(x=>{ if(x.type==='cityintro') x.type='guided'; }); if(S.about&&S.about.cc&&!S.about.cc.role) S.about.cc.role='gm'; } } } catch(e) {}
 if (!S.lang) { const n=(navigator.language||'en').slice(0,2); S.lang = L.includes(n)?n:'en'; }
 let saveTimer=null;
 function save(){ clearTimeout(saveTimer); saveTimer=setTimeout(()=>{ try{ const c=JSON.parse(JSON.stringify(S)); ['images','portrait','logo','mainImg'].forEach(k=>c[k]=[]); c.services.forEach(s=>s.photos=[]); localStorage.setItem(KEY, JSON.stringify(c)); document.getElementById('saved').textContent=t('saved'); }catch(e){} },400); }
@@ -534,7 +540,7 @@ R.about = i => isHero() ? `${head(i,'about','lh_lede')}
   <div class="grid three">${inp('about.contact.name',t('c_name'),{req:true})}${inp('about.contact.email','E-mail',{type:'email',req:true})}${inp('about.contact.phone',t('f_phone'),{type:'tel'})}</div>
  </fieldset>
  <fieldset><legend>${esc(t('c_copy'))}</legend><span class="hint">${esc(t('c_copy_hint'))}</span>
-  <div class="grid three"><div class="field"><label for="f-about-cc-role">${esc(t('c_role'))}</label><select id="f-about-cc-role" data-k="about.cc.role">${[['gm','c_gm'],['res','c_res'],['sales','c_sales']].map(([k,l])=>`<option value="${k}" ${S.about.cc.role===k?'selected':''}>${esc(t(l))}</option>`).join('')}</select></div>
+  <div class="grid three"><div class="field"><label for="f-about-cc-role">${esc(t('c_role'))}</label><select id="f-about-cc-role" data-k="about.cc.role">${[['gm','c_gm'],['res','c_res'],['sales','c_sales']].map(([k,l])=>`<option value="${k}" ${(S.about.cc.role||'gm')===k?'selected':''}>${esc(t(l))}</option>`).join('')}</select></div>
   ${inp('about.cc.email','E-mail',{type:'email'})}</div>
  </fieldset>`;
 
@@ -570,7 +576,7 @@ function svcCard(s,n){ const p='services.'+n;
  ${s.prev?`<span class="hint">${esc(t('s_prev'))}</span>`:''}
  <div class="grid">${sel(p+'.type',t('s_type'),'stype')}${inp(p+'.title',t('s_name'),{req:true})}
   ${inp(p+'.desc',t('s_desc'),{rows:3,full:true})}${inp(p+'.incl',t('s_incl'),{rows:2,full:true,hint:t('s_incl_hint')})}
-  <div class="field full"><label for="f-${p.replace('.','-')}-status">${esc(t('s_status'))}</label><select id="f-${p.replace('.','-')}-status" data-k="${p}.status" data-rerender="1">${['included','suggested','optional'].map(k=>`<option value="${k}" ${s.status===k?'selected':''}>${esc(t('s_'+k))}</option>`).join('')}</select></div>
+  <div class="field full"><label for="f-${p.replace('.','-')}-status">${esc(t('s_status'))}</label><select id="f-${p.replace('.','-')}-status" data-k="${p}.status" data-rerender="1">${['included','suggested','optional'].map(k=>`<option value="${k}" ${s.status===k?'selected':''}>${esc(t('s_'+k))}</option>`).join('')}</select><span class="hint">${esc(t('s_status_hint'))}</span></div>
   ${s.status==='included'?inp(p+'.price',t(s.type==='transfer'?'s_cost_veh':'s_cost')+' ('+S.currency+')',{type:'number',hint:t('s_cost_hint')}):''}
  </div>
  <div class="field"><span class="lbl">${esc(t('s_days'))}</span><div class="chips">${DAYS.map(d=>`<button type="button" class="chip" data-svcday="${n}" data-d="${d}" aria-pressed="${s.days.includes(d)}">${esc(t(d))}</button>`).join('')}</div></div>
@@ -578,20 +584,29 @@ function svcCard(s,n){ const p='services.'+n;
  <div class="field"><span class="lbl">${esc(t('s_photos'))}</span>${picsBlock(p+'.photos',5,'d-svc-'+s.id)}</div>
  <div><button type="button" class="btn-link" data-rmsvc="${n}">${esc(t('s_remove'))}</button></div></div>`; }
 
-R.program = i => { const days=(+S.pkg.nights||1)+1;
+function frameProgram(){ const nights=+S.pkg.nights||1, days=nights+1; const bfSt=['bb','hb','fb','ai'].includes(S.acc.board)?'included':'optional';
+ for(let d=1; d<=days; d++){ const rows=(S.program[d]=S.program[d]||[]);
+  if(d>1 && !rows.some(r=>r.svc==='bf')) rows.unshift({slot:'morning',svc:'bf',free:'',time:'',st:bfSt,fixed:1});
+  let ai=rows.findIndex(r=>r.svc==='acc');
+  if(d<=nights){ if(ai<0) rows.push({slot:'overnight',svc:'acc',free:'',time:'',st:'included',fixed:1}); else if(ai!==rows.length-1){ const [a]=rows.splice(ai,1); rows.push(a); } rows[rows.length-1].fixed=1; }
+  else if(ai>=0 && rows[ai].fixed) rows.splice(ai,1);
+ }
+ Object.keys(S.program).forEach(k=>{ if(+k>days) delete S.program[k]; }); }
+R.program = i => { frameProgram(); const days=(+S.pkg.nights||1)+1;
  const svcs=S.services.filter(s=>s.type!=='accommodation');
- let h=`${head(i,'program','pr_lede')}`;
+ let h=`${head(i,'program','pr_lede')}${note('pr_order')}`;
  
  h+=`<div class="days">`;
  for(let d=1; d<=days; d++){ const rows=S.program[d]||[];
   h+=`<div class="item day"><h3>${esc(t('pr_day'))} ${d}</h3>${rows.map((r,n)=>{ const p=`program.${d}.${n}`;
-   return `<div class="row"><select aria-label="${esc(t('pr_slot'))}" id="f-pr-${d}-${n}-slot" data-k="${p}.slot">${Object.keys(OPT.slot).map(k=>`<option value="${k}" ${r.slot===k?'selected':''}>${esc(o('slot',k))}</option>`).join('')}</select>
-    <div class="wide" style="display:flex;flex-direction:column;gap:6px;min-width:0"><select aria-label="${esc(t('pr_what'))}" id="f-pr-${d}-${n}-svc" data-k="${p}.svc" data-rerender="1"><option value="">${esc(t('pr_free'))}</option><option value="acc" ${r.svc==='acc'?'selected':''}>${esc(t('acc_title')+': '+(S.acc.title||''))}</option>${S.services.map(s=>`<option value="${s.id}" ${r.svc===s.id?'selected':''}>${esc(s.title||o('stype',s.type))}</option>`).join('')}</select>
+   const isAcc=r.svc==='acc', isBf=r.svc==='bf', lockLast=isAcc&&r.fixed, canUp=n>0, canDown=n<rows.length-1&&!(rows[n+1]&&rows[n+1].svc==='acc'&&rows[n+1].fixed);
+   return `<div class="row" draggable="${lockLast?'false':'true'}" data-dday="${d}" data-di="${n}"><div class="mover"><span class="grip" aria-hidden="true">${lockLast?'':'⠿'}</span><button type="button" class="btn-link" aria-label="${esc(t('pr_up'))}" data-mv="${d}" data-i="${n}" data-dir="-1" ${canUp&&!lockLast?'':'disabled'}>▲</button><button type="button" class="btn-link" aria-label="${esc(t('pr_down'))}" data-mv="${d}" data-i="${n}" data-dir="1" ${canDown&&!lockLast?'':'disabled'}>▼</button></div><select aria-label="${esc(t('pr_slot'))}" id="f-pr-${d}-${n}-slot" data-k="${p}.slot">${Object.keys(OPT.slot).map(k=>`<option value="${k}" ${r.slot===k?'selected':''}>${esc(o('slot',k))}</option>`).join('')}</select>
+    <div class="wide" style="display:flex;flex-direction:column;gap:6px;min-width:0"><select aria-label="${esc(t('pr_what'))}" id="f-pr-${d}-${n}-svc" data-k="${p}.svc" data-rerender="1" ${r.fixed?'disabled':''}><option value="">${esc(t('pr_free'))}</option><option value="bf" ${isBf?'selected':''}>${esc(t('pr_bf'))}</option><option value="acc" ${r.svc==='acc'?'selected':''}>${esc(t('acc_title')+': '+(S.acc.title||''))}</option>${S.services.map(s=>`<option value="${s.id}" ${r.svc===s.id?'selected':''}>${esc(s.title||o('stype',s.type))}</option>`).join('')}</select>
     ${r.svc?'':`<input type="text" aria-label="${esc(t('pr_what'))}" id="f-pr-${d}-${n}-free" data-k="${p}.free" value="${esc(r.free)}" placeholder="${esc(t('pr_free_ph'))}">`}
     </div>
     <select aria-label="${esc(t('pr_st'))}" id="f-pr-${d}-${n}-st" data-k="${p}.st">${['included','optional','suggested'].map(k=>`<option value="${k}" ${(r.st||'included')===k?'selected':''}>${esc(t('pr_'+k))}</option>`).join('')}</select>
     <input type="time" aria-label="${esc(t('pr_time'))}" id="f-pr-${d}-${n}-time" data-k="${p}.time" value="${esc(r.time)}">
-    <button type="button" class="btn-link" aria-label="${esc(t('i_remove'))}" data-rmrow="${d}" data-i="${n}">✕</button></div>`; }).join('')}
+    ${r.fixed?'<span></span>':`<button type="button" class="btn-link" aria-label="${esc(t('i_remove'))}" data-rmrow="${d}" data-i="${n}">✕</button>`}</div>`; }).join('')}
    <div style="margin-top:10px"><button type="button" class="btn btn-ghost btn-small" data-addrow="${d}">+ ${esc(t('pr_add'))}</button></div></div>`; }
  return h+`</div>`; };
 
@@ -727,7 +742,8 @@ main.addEventListener('click', e=>{ const b=e.target.closest('button'); if(!b) r
   else if(d.rmsvc!=null){ const id=S.services[+d.rmsvc].id; S.services.splice(+d.rmsvc,1); Object.values(S.program).forEach(rows=>rows.forEach(r=>{ if(r.svc===id) r.svc=''; })); }
   else if(d.svctime!=null){ const sv=S.services[+d.svctime]; sv.times=sv.times||[]; const i=sv.times.indexOf(d.d); i<0?sv.times.push(d.d):sv.times.splice(i,1); }
   else if(d.svcday!=null){ const a=S.services[+d.svcday].days; const i=a.indexOf(d.d); i<0?a.push(d.d):a.splice(i,1); }
-  else if(d.addrow){ (S.program[d.addrow]=S.program[d.addrow]||[]).push({slot:'morning',svc:'',free:'',time:'',st:'included'}); }
+  else if(d.addrow){ const rows=(S.program[d.addrow]=S.program[d.addrow]||[]); const nr={slot:'morning',svc:'',free:'',time:'',st:'included'}; const last=rows[rows.length-1]; if(last&&last.svc==='acc'&&last.fixed) rows.splice(rows.length-1,0,nr); else rows.push(nr); }
+  else if(d.mv){ moveRow(d.mv,+d.i,+d.i+(+d.dir)); }
   else if(d.rmrow){ S.program[d.rmrow].splice(+d.i,1); }
   else if(d.perk){ S.perks[d.perk]=Object.assign(S.perks[d.perk]||{}, {lvl:d.l}); }
   else if(d.crit!=null){ S.avail.crit[+d.crit].m=d.m; }
@@ -739,7 +755,14 @@ main.addEventListener('click', e=>{ const b=e.target.closest('button'); if(!b) r
   else if(d.main){ getP(d.main).forEach((p,i)=>p.main=(i===+d.i)); }
   else return;
   save(); render(); });
-['dragover','dragleave','drop'].forEach(ev=>main.addEventListener(ev, e=>{ const z=e.target.closest('.drop'); if(!z) return; e.preventDefault();
+function moveRow(day,from,to){ const rows=S.program[day]; if(!rows||to<0||to>=rows.length||from===to) return; const last=rows[rows.length-1];
+ if(last&&last.svc==='acc'&&last.fixed&&(from===rows.length-1||to===rows.length-1)) return; const [r]=rows.splice(from,1); rows.splice(to,0,r); }
+let dragRow=null;
+main.addEventListener('dragstart', e=>{ const r=e.target.closest&&e.target.closest('.row[draggable="true"]'); if(!r) return; dragRow={d:r.dataset.dday,i:+r.dataset.di}; e.dataTransfer.effectAllowed='move'; try{e.dataTransfer.setData('text/plain','row');}catch(x){} r.classList.add('dragging'); });
+main.addEventListener('dragend', e=>{ dragRow=null; main.querySelectorAll('.row.dragging,.row.dropto').forEach(x=>x.classList.remove('dragging','dropto')); });
+main.addEventListener('dragover', e=>{ if(!dragRow) return; const r=e.target.closest('.row'); if(!r||r.dataset.dday!==dragRow.d) return; e.preventDefault(); main.querySelectorAll('.row.dropto').forEach(x=>x.classList.remove('dropto')); r.classList.add('dropto'); });
+main.addEventListener('drop', e=>{ if(!dragRow) return; const r=e.target.closest('.row'); if(!r||r.dataset.dday!==dragRow.d) return; e.preventDefault(); moveRow(dragRow.d,dragRow.i,+r.dataset.di); dragRow=null; save(); render(); });
+['dragover','dragleave','drop'].forEach(ev=>main.addEventListener(ev, e=>{ if(dragRow) return; const z=e.target.closest('.drop'); if(!z) return; e.preventDefault();
   z.classList.toggle('over', ev==='dragover'); if(ev==='drop') addFiles(e.dataTransfer.files, z.dataset.list, +z.dataset.max); }));
 function addFiles(files,listPath,max){ let list=getP(listPath); if(!Array.isArray(list)){ list=[]; setP(listPath,list); }
   const arr=[...files].filter(f=>/^image\//.test(f.type));
